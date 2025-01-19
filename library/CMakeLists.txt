@@ -1,2 +1,5 @@
 add_subdirectory(motor)
 add_subdirectory(gyro)
+add_subdirectory(actions)
+add_subdirectory(defence)
+add_subdirectory(attack)
