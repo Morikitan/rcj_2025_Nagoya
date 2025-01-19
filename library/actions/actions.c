@@ -1,7 +1,6 @@
 #include "motor.h"
 #include "actions.h"
-
-int MotorDuty[4];
+#include "../config.h"
 
 void Brake(){
     MainMotorState(1, 3, 255);

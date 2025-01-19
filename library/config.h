@@ -1,7 +1,7 @@
 #pragma once
 
 /*******************
-a 機体の角度(AngelX)
+a 機体の角度(AngleX)
 b ボールセンサーの値(BallDistance,BallAngle)
 l ラインセンサーの値(0か1で受け取る)
 m モーターに加わる電圧(AngleXもセットで)
@@ -13,12 +13,24 @@ char SerialWatch = 'b';
 //mode
 int mode = 0;  //mode = 99で全部正転
 
-//public変数
+//gyro senso
+float AngleX = 0, AngleY, AngleZ;
+
+//ball sensor
+float BallAngle;  //999.0でボール持ってる。-999.0で行方不明
+int BallDistance;
+
+//line sensor
 char LineSensorABCD[16];
 char LineSensorE[16];
 int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
 int ErorrLineSensor = 0;
 
+//public times
+
+
+//others
+int MotorDuty[4];
 
 //speed
 #define LeastTurnSpeed 40
