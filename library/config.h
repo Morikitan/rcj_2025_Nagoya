@@ -1,5 +1,25 @@
 #pragma once
 
+/*******************
+a 機体の角度(AngelX)
+b ボールセンサーの値(BallDistance,BallAngle)
+l ラインセンサーの値(0か1で受け取る)
+m モーターに加わる電圧(AngleXもセットで)
+t 1回の経過時間(ミリ秒)
+B BLEの接続状況
+*******************/
+char SerialWatch = 'b';
+
+//mode
+int mode = 0;  //mode = 99で全部正転
+
+//public変数
+char LineSensorABCD[16];
+char LineSensorE[16];
+int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
+int ErorrLineSensor = 0;
+
+
 //speed
 #define LeastTurnSpeed 40
 #define LeastSpeed 60
