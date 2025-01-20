@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+void Nano33IoTSetup();
 void UseBallSensor();
 void UseBLE();
 
