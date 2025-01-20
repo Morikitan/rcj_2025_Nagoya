@@ -4,3 +4,4 @@ pico_set_program_name(actions "actions")
 pico_set_program_version(actions "0.1")
 
 target_include_directories(actions PRIVATE ../motor)
+target_link_libraries(actions pico_stdlib hardware_gpio)

@@ -4,9 +4,8 @@
 extern "C" {
 #endif
 
-void PinSetup();
-void Brake();
-void UseMotorDuty();
+void UseBallSensor();
+void UseBLE();
 
 #ifdef __cplusplus
 }
