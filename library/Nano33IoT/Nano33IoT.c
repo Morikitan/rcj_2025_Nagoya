@@ -16,16 +16,16 @@ void UseBallSensor(){
         kurikaesi++;
         if(kurikaesi > 100){
             kurikaesi = 0;
-            uart_flush();
             if(SerialWatch == 'b'){
-            printf("flushしました。\n");
+                printf("送信できません。\n");
             }
         }
     }
     //BallSensorの値を要求
     uart_putc(uart1,0x01); 
     uart_putc(uart1,0x03); 
-    uint8_t data = uart_getc_timeout(uart1, 10); 
+    uint8_t data = 0;
+    uart_read_blocking(uart1,&data,1); 
     if(data == PICO_ERROR_TIMEOUT){
         BallAngle = -999;
         if(SerialWatch == 'b'){
@@ -54,9 +54,9 @@ void UseBLE(){
         kurikaesi++;
         if(kurikaesi > 100){
             kurikaesi = 0;
-            uart_flush();
+            //uart_flush();
             if(SerialWatch == 'B'){
-                printf("flushしました。\n");
+                printf("送信できません\n");
             }
         }
     }
@@ -66,10 +66,11 @@ void UseBLE(){
     }else{
         uart_putc(uart1,0x03); 
     }
-    uint8_t data = uart_getc_timeout(uart1, 10); 
+    uint8_t data = 0;
+    uart_read_blocking(uart1,&data,1); 
     if(data == PICO_ERROR_TIMEOUT){
         BallAngle = -999;
-        if(SerialWatch == 'b'){
+        if(SerialWatch == 'B'){
             printf("データの受信に失敗しました\n");
         }
     }else{
