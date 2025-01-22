@@ -10,8 +10,6 @@ void GyroSetup(){
     i2c_init(i2c1,115200);
     gpio_set_function(SDA1pin, GPIO_FUNC_I2C);
     gpio_set_function(SCL1pin, GPIO_FUNC_I2C);
-    gpio_pull_up(SDA1pin);
-    gpio_pull_up(SCL1pin);
     i2c_write_blocking(i2c1,BNO_ADDRESS,(uint8_t[]){0x00},1,true);
     uint8_t chip_id;
     i2c_read_blocking(i2c1, BNO_ADDRESS, &chip_id, 1, false); 

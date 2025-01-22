@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-void LineSetup();
+int LineSetup();
 void UseLineSensor();
 
 #ifdef __cplusplus
