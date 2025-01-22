@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 void Attack();
-void CheseBall(float angle);
+void ChaseBall(float angle);
 
 #ifdef __cplusplus
 }

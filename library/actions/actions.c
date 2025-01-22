@@ -3,6 +3,10 @@
 #include "../config.h"
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
+#include "line.h"
+#include "gyro.h"
+#include "Nano33IoT.h"
+#include "camera.h"
 
 void Brake(){
     MainMotorState(1, 3, 255);
@@ -40,4 +44,12 @@ void PinSetup(){
   gpio_set_dir(TSpin5,GPIO_OUT);
   gpio_set_dir(TSpin6,GPIO_OUT);
   gpio_set_dir(Bupin,GPIO_OUT);
+}
+
+void UseAllSensor(){
+  UseBallSensor();
+  UseLineSensor();
+  UseGyroSensor();
+  UseBLE();
+  UseCamera();
 }

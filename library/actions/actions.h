@@ -7,6 +7,7 @@ extern "C" {
 void PinSetup();
 void Brake();
 void UseMotorDuty();
+void UseAllSensor();
 
 #ifdef __cplusplus
 }

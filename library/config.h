@@ -31,6 +31,7 @@ int ErorrLineSensor = 0;
 
 //others
 int MotorDuty[4];
+int makao = 0;
 
 //speed
 #define LeastTurnSpeed 40
