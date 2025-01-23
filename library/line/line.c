@@ -37,9 +37,9 @@ void UseLineSensor(){
         if(SerialWatch == 'l')printf("%d",LineSensorABCD[a]);
     }
     i2c_write_raw_blocking(i2c0,(uint8_t[]){MCP23017_ADDRESS_2,0x09},2);
-    uint8_t data1 = i2c_read_byte_raw(i2c0);
+    data1 = i2c_read_byte_raw(i2c0);
     i2c_write_raw_blocking(i2c0,(uint8_t[]){MCP23017_ADDRESS_2,0x19},2);
-    uint8_t data2 = i2c_read_byte_raw(i2c0);
+    data2 = i2c_read_byte_raw(i2c0);
     for(int a = 0;a < 8;a++){
         LineSensorE[a] = (data1 >> a) & 1 ;
         if(SerialWatch == 'l')printf("%d",LineSensorE[a]);
