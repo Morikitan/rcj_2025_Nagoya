@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "../config.h"
 
+bool UsedBLE = false;
+
 void Nano33IoTSetup(){
     uart_init(uart1,115200);
     gpio_set_function(TX1pin, GPIO_FUNC_UART);  // TXピン
@@ -23,10 +25,16 @@ void UseBallSensor(){
     }
     //BallSensorの値を要求
     uart_putc(uart1,0x01); 
-    uart_putc(uart1,0x03); 
+    
     uint8_t data = 0;
+    while(!uart_is_readable(uart1)){
+        if(SerialWatch == 'B'){
+            printf("データを待っています\n");
+        }
+    }
+
     uart_read_blocking(uart1,&data,1); 
-    if(data == PICO_ERROR_TIMEOUT){
+    if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){
         BallAngle = -999;
         if(SerialWatch == 'b'){
             printf("データの受信に失敗しました\n");
@@ -49,31 +57,70 @@ void UseBallSensor(){
 }
 
 void UseBLE(){
-    int kurikaesi = 0;
-    while (!uart_is_writable(uart1)) {  
-        kurikaesi++;
-        if(kurikaesi > 100){
-            kurikaesi = 0;
-            //uart_flush();
-            if(SerialWatch == 'B'){
-                printf("送信できません\n");
+    if(UsedBLE == false || !(mode == 1 || mode == 2)){
+        int kurikaesi = 0;
+        while (!uart_is_writable(uart1)) {  
+            kurikaesi++;
+            if(kurikaesi > 100){
+                kurikaesi = 0;
+                //uart_flush();
+                if(SerialWatch == 'B'){
+                    printf("送信できません\n");
+                }
             }
         }
-    }
-    //BallSensorの値を要求
-    if(mode == 1 || mode == 2 || mode == 99){
-        uart_putc(uart1,0x02); 
-    }else{
-        uart_putc(uart1,0x03); 
-    }
-    uint8_t data = 0;
-    uart_read_blocking(uart1,&data,1); 
-    if(data == PICO_ERROR_TIMEOUT){
-        BallAngle = -999;
-        if(SerialWatch == 'B'){
-            printf("データの受信に失敗しました\n");
+        //BallSensorの値を要求
+        if(mode == 1 || mode == 2 || mode == 99){
+            uart_putc(uart1,0x02); 
+        }else{
+            uart_putc(uart1,0x03); 
         }
-    }else{
-        
+
+        uint8_t data = 0;
+        while(!uart_is_readable(uart1)){
+            if(SerialWatch == 'B'){
+                printf("データを待っています\n");
+            }
+        }
+
+        uart_read_blocking(uart1,&data,1); 
+        if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){
+            BallAngle = -999;
+            if(SerialWatch == 'B'){
+                printf("データの受信に失敗しました\n");
+            }
+        }else{
+            if(data == 0x01){
+                UsedBLE = true;
+                if(SerialWatch == 'B'){
+                    printf("BLEは正常です。\n");
+                }
+            }else if(data == 0x02){
+                if(SerialWatch == 'B'){
+                    printf("BLEの接続に失敗しています。\n");
+                }
+            }else if(data == 0x03){
+                mode -= 2;
+                UsedBLE = false;
+                if(SerialWatch == 'B'){
+                    printf("アタッカーに代わります。\n");
+                }
+                uart_putc(uart1,0x04); 
+                while(!uart_is_readable(uart1)){
+                    if(SerialWatch == 'B'){
+                        printf("データを待っています\n");
+                    }
+                }
+                if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){
+                    if(SerialWatch == 'B'){
+                        printf("データの受信に失敗しました\n");
+                    }
+                }else{
+                    if(SerialWatch == 'B'){
+                        printf("アタッカーに替われました。\n");
+                    }
+                }
+            }  
+        }
     }
 }
