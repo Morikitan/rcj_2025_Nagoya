@@ -10,9 +10,8 @@ pico_enable_stdio_uart(main 0)
 pico_enable_stdio_usb(main 1)
 
 # Add the standard include files to the build
-target_include_directories(main PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}
-)
+target_include_directories(main PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/library)
 
 target_include_directories(main PRIVATE ../library)
 

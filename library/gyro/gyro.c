@@ -45,4 +45,11 @@ void UseGyroSensor(){
     if(SerialWatch == 'a'){
         printf("AngleX : %f\n",AngleX);
     }
+    if(mode == 2 || mode == 4){
+        if (AngleX > 180){
+            AngleX -= 180;
+        }else{
+            AngleX += 180;
+        }
+    }
 }
