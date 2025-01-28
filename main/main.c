@@ -14,8 +14,11 @@
 #include "Nano33IoT/Nano33IoT.h"
 #include "config.h"
 
+uint32_t PreTime = 0;
+
 int main()
 {
+    VariableSetup();
     stdio_init_all();
     PinSetup();
 
@@ -30,6 +33,10 @@ int main()
     gpio_put(Bupin,0);
 
     while (true) {
+        if(SerialWatch == 't'){
+            printf("経過時間%fミリ秒\n",(time_us_32()-PreTime)/1000.0);
+            PreTime = time_us_32();
+        }
         if(mode = 0){
             if(gpio_get(TSpin1 == 1)){
                 mode = 1;

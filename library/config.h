@@ -8,30 +8,33 @@ m モーターに加わる電圧(AngleXもセットで)
 t 1回の経過時間(ミリ秒)
 B BLEの接続状況
 *******************/
-char SerialWatch = 'b';
+extern char SerialWatch;
 
 //mode
-int mode = 0;  //mode = 99で全部正転
+extern int mode;  //mode = 99で全部正転
 
 //gyro senso
-float AngleX = 0, AngleY, AngleZ;
+extern float AngleX, AngleY, AngleZ;
 
 //ball sensor
-float BallAngle;  //999.0でボール持ってる。-999.0で行方不明
-int BallDistance;
+extern float BallAngle;  //999.0でボール持ってる。-999.0で行方不明
+extern int BallDistance;
 
 //line sensor
-char LineSensorABCD[16];
-char LineSensorE[16];
-int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
-int ErorrLineSensor = 0;
+extern char LineSensorABCD[16];
+extern char LineSensorE[16];
+extern int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
+extern int ErorrLineSensor;
 
-//public times
-
+//camera 
+extern unsigned char YellowX;
+extern unsigned char YellowY;
+extern unsigned char BlueX;
+extern unsigned char BlueY;
 
 //others
-int MotorDuty[4];
-int makao = 0;
+extern int MotorDuty[4];
+extern int makao;
 
 //speed
 #define LeastTurnSpeed 40

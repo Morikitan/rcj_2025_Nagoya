@@ -6,6 +6,7 @@ extern "C" {
 
 void UseCamera();
 void CameraSetup();
+
 #ifdef __cplusplus
 }
 #endif

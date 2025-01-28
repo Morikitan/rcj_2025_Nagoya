@@ -38,7 +38,7 @@ void GyroSetup(){
 }
 
 void UseGyroSensor(){
-    uint buffer[2];
+    uint8_t buffer[2];
     i2c_write_blocking(i2c1, BNO_ADDRESS, (uint8_t[]){0x1A}, 1, true); 
     i2c_read_blocking(i2c1, BNO_ADDRESS, buffer, 2, false); 
     AngleX = ((buffer[1] << 8) | buffer[0]) / 16.0;

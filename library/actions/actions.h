@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+void VariableSetup();
 void PinSetup();
 void Brake();
 void UseMotorDuty();

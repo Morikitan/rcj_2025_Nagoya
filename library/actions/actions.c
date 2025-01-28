@@ -8,6 +8,41 @@
 #include "Nano33IoT.h"
 #include "camera.h"
 
+char SerialWatch;
+int mode;
+float AngleX; 
+float AngleY; 
+float AngleZ;
+int ErorrLineSensor;
+int makao;
+
+void VariableSetup(){
+  /*******************
+  a 機体の角度(AngleX)
+  b ボールセンサーの値(BallDistance,BallAngle)
+  l ラインセンサーの値(0か1で受け取る)
+  m モーターに加わる電圧(AngleXもセットで)
+  t 1回の経過時間(ミリ秒)
+  B BLEの接続状況
+  c カメラの値
+  *******************/
+  SerialWatch = 'b';
+
+  //mode
+  mode = 0;  //mode = 99で全部正転
+
+  //gyro sensor
+  AngleX = 0; 
+  AngleY = 0; 
+  AngleZ = 0;
+
+  //line sensor
+  ErorrLineSensor = 0;
+
+  //others 
+  makao = 0;
+}
+
 void Brake(){
     MainMotorState(1, 3, 255);
     MainMotorState(2, 3, 255);
