@@ -25,10 +25,10 @@ int main()
     gpio_put(Bupin,1);
 
     CameraSetup();
-    GyroSetup();
-    LineSetup();
-    MotorSetup();
-    Nano33IoTSetup();
+    //GyroSetup();
+    //LineSetup();
+    //MotorSetup();
+    //Nano33IoTSetup();
 
     gpio_put(Bupin,0);
 
@@ -57,7 +57,7 @@ int main()
         }else if(mode == 3 || mode == 4){
             Defence();
         }else{
-
+            UseCamera();
         }
     }
 }

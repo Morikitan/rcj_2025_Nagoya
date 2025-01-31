@@ -10,6 +10,9 @@ void Nano33IoTSetup(){
     uart_init(uart1,115200);
     gpio_set_function(TX1pin, GPIO_FUNC_UART);  // TXピン
     gpio_set_function(RX1pin, GPIO_FUNC_UART);  // RXピン
+    //実際は消す
+    gpio_pull_up(TX1pin);
+    gpio_pull_up(RX1pin);
 }
 
 void UseBallSensor(){
@@ -24,14 +27,14 @@ void UseBallSensor(){
         }
     }
     //BallSensorの値を要求
+    //uart_write_blocking(uart1,(uint8_t[]){0x01},1);
     uart_putc(uart1,0x01); 
     
     uint8_t data = 0;
-    while(!uart_is_readable(uart1)){
-        if(SerialWatch == 'B'){
-            printf("データを待っています\n");
-        }
+    if(SerialWatch == 'b'){
+        printf("データを待っています");
     }
+    while(!uart_is_readable(uart1)){}
 
     uart_read_blocking(uart1,&data,1); 
     if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){
@@ -77,11 +80,10 @@ void UseBLE(){
         }
 
         uint8_t data = 0;
-        while(!uart_is_readable(uart1)){
-            if(SerialWatch == 'B'){
-                printf("データを待っています\n");
-            }
+        if(SerialWatch == 'B'){
+            printf("データを待っています");
         }
+        while(!uart_is_readable(uart1)){}
 
         uart_read_blocking(uart1,&data,1); 
         if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){

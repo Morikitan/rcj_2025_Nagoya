@@ -10,6 +10,7 @@
 #include <math.h>
 #include "Nano33IoT.h"
 #include "line.h"
+#include "camera.h"
 
 float AngleSpeed = 0;
 float AngleSpeedI = 0;
@@ -98,6 +99,7 @@ void Attack(){
       gpio_put(TSpin6,0);
       UseGyroSensor();
       UseBallSensor();
+      UseCamera();
       if (BallAngle == 999) {
         //マカオシュートの準備～実行
         if (AngleX > 170 && AngleX < 190) {

@@ -9,11 +9,19 @@
 #include "camera.h"
 
 char SerialWatch;
-int mode;
-float AngleX; 
-float AngleY; 
-float AngleZ;
+int mode;  //mode = 99で全部正転
+float AngleX, AngleY, AngleZ;
+float BallAngle;  //999.0でボール持ってる。-999.0で行方不明
+int BallDistance;
+char LineSensorABCD[16];
+char LineSensorE[16];
+int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
 int ErorrLineSensor;
+unsigned char YellowX;
+unsigned char YellowY;
+unsigned char BlueX;
+unsigned char BlueY;
+int MotorDuty[4];
 int makao;
 
 void VariableSetup(){
@@ -29,7 +37,7 @@ void VariableSetup(){
   SerialWatch = 'b';
 
   //mode
-  mode = 0;  //mode = 99で全部正転
+  mode = 99;  //mode = 99で全部正転
 
   //gyro sensor
   AngleX = 0; 

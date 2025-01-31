@@ -10,6 +10,9 @@ void CameraSetup(){
     uart_init(uart0,9600);
     gpio_set_function(TX0pin, GPIO_FUNC_UART);  // TXピン
     gpio_set_function(RX0pin, GPIO_FUNC_UART);  // RXピン
+
+    gpio_pull_up(TX0pin);
+    gpio_pull_up(RX0pin);
 }
 
 void UseCamera(){
