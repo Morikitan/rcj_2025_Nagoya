@@ -17,10 +17,10 @@ char LineSensorABCD[16];
 char LineSensorE[16];
 int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
 int ErorrLineSensor;
-unsigned char YellowX;
-unsigned char YellowY;
-unsigned char BlueX;
-unsigned char BlueY;
+int YellowX;
+int YellowY;
+int BlueX;
+int BlueY;
 int MotorDuty[4];
 int makao;
 

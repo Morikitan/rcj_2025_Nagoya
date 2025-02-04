@@ -27,10 +27,10 @@ extern int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLi
 extern int ErorrLineSensor;
 
 //camera 
-extern unsigned char YellowX;
-extern unsigned char YellowY;
-extern unsigned char BlueX;
-extern unsigned char BlueY;
+extern int YellowX;
+extern int YellowY;
+extern int BlueX;
+extern int BlueY;
 
 //others
 extern int MotorDuty[4];
