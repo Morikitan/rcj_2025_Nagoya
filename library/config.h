@@ -31,6 +31,8 @@ extern int YellowX;
 extern int YellowY;
 extern int BlueX;
 extern int BlueY;
+extern int LeftWall;
+extern int RightWall;
 
 //others
 extern int MotorDuty[4];

@@ -21,6 +21,8 @@ int YellowX;
 int YellowY;
 int BlueX;
 int BlueY;
+int LeftWall;
+int RightWall;
 int MotorDuty[4];
 int makao;
 
