@@ -12,8 +12,9 @@ extern char SerialWatch;
 
 //mode
 extern int mode;  //mode = 99で全部正転
+extern char isYellowMyGoal;
 
-//gyro senso
+//gyro sensor
 extern float AngleX, AngleY, AngleZ;
 
 //ball sensor
@@ -27,10 +28,14 @@ extern int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLi
 extern int ErorrLineSensor;
 
 //camera 
-extern int YellowX;
-extern int YellowY;
-extern int BlueX;
-extern int BlueY;
+extern int MyGoalX;
+extern int MyGoalY;
+extern int OpponentGoalX;
+extern int OpponentGoalY;
+extern float MyGoalAngle;
+extern float MyGoalDistance;
+extern float OpponentGoalAngle;
+extern float OpponentGoalDistance;
 extern int LeftWall;
 extern int RightWall;
 

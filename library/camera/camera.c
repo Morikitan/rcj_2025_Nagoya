@@ -3,6 +3,7 @@
 #include "hardware/uart.h"
 #include <stdio.h>
 #include "../config.h"
+#include <math.h>
 
 int CameraDataNumber = 1;
 unsigned char CameraData[] = {0,0,0,0,0,0};
@@ -29,28 +30,55 @@ void UseCamera(){
         if(CameraDataNumber == 6)CameraDataNumber = 1;
         else CameraDataNumber++;  
     }
-    if(CameraData[0] == 255)YellowX = 999;
-    else YellowX = CameraData[0];
-    if(CameraData[1] == 255)YellowY = 999;
-    else YellowY = CameraData[1];
-    if(CameraData[2] == 255)BlueX = 999;
-    else BlueX = CameraData[2];
-    if(CameraData[3] == 255)BlueY = 999;
-    else BlueY = CameraData[3];
-    if(mode == 1 || mode == 3 || mode == 99){
-        if(CameraData[4] == 255 || (15 < AngleX && AngleX < 345))LeftWall = 999;
-        else LeftWall = CameraData[4];
-        if(CameraData[5] == 255 || (15 < AngleX && AngleX < 345))RightWall = 999;
-        else RightWall = CameraData[5];
+
+    if(isYellowMyGoal == 1){
+        if(CameraData[0] == 255)MyGoalX = 999;
+        else MyGoalX = CameraData[0];
+        if(CameraData[1] == 255)MyGoalY = 999;
+        else MyGoalY = CameraData[1];
+        if(CameraData[2] == 255)OpponentGoalX = 999;
+        else OpponentGoalX = CameraData[2];
+        if(CameraData[3] == 255)OpponentGoalY = 999;
+        else OpponentGoalY = CameraData[3];
     }else{
-        if(CameraData[4] == 255 || (15 < AngleX && AngleX < 345))RightWall = 999;
-        else RightWall = 255 - CameraData[4];
-        if(CameraData[5] == 255 || (15 < AngleX && AngleX < 345))LeftWall = 999;
-        else LeftWall = 255 - CameraData[5];
+        if(CameraData[0] == 255)OpponentGoalX = 999;
+        else OpponentGoalX = CameraData[0];
+        if(CameraData[1] == 255)OpponentGoalY = 999;
+        else OpponentGoalY = CameraData[1];
+        if(CameraData[2] == 255)MyGoalX = 999;
+        else MyGoalX = CameraData[2];
+        if(CameraData[3] == 255)MyGoalY = 999;
+        else MyGoalY = CameraData[3];
+    }
+    if(CameraData[4] == 255 || (15 < AngleX && AngleX < 345))LeftWall = 999;
+    else LeftWall = CameraData[4];
+    if(CameraData[5] == 255 || (15 < AngleX && AngleX < 345))RightWall = 999;
+    else RightWall = CameraData[5];
+
+    if(MyGoalX == 255 && MyGoalY == 255){
+        MyGoalAngle = 999;
+        MyGoalDistance = 999;
+    }else{
+        //正面が0度で時計回りの角度に変換する。
+        MyGoalAngle = atan2((128.0-MyGoalY),(MyGoalX-128.0)) / 3.1415 * -180 + 90.0;
+        if(MyGoalAngle < 0) MyGoalAngle += 360;
+        //三平方の定理で相対距離を求める
+        MyGoalDistance = sqrt((MyGoalX-128.0)*(MyGoalX-128.0)+(MyGoalY-128.0)*(MyGoalY-128.0));
+    }
+    
+    if(OpponentGoalX == 255 && OpponentGoalY == 255){
+        OpponentGoalAngle = 999;
+        OpponentGoalDistance = 999;
+    }else{
+        //正面が0度で時計回りの角度に変換する。
+        OpponentGoalAngle = atan2((128.0-MyGoalY),(MyGoalX-128.0)) / 3.1415 * -180 + 90.0;
+        if(OpponentGoalAngle < 0) OpponentGoalAngle += 360;
+        //三平方の定理で相対距離を求める
+        OpponentGoalDistance = sqrt((OpponentGoalX-128.0)*(OpponentGoalX-128.0)+(OpponentGoalY-128.0)*(OpponentGoalY-128.0));
     }
     
     if(SerialWatch = 'c'){
-        printf("YellowX : %d YellowY : %d BlueX : %d BlueY : %d LeftWall : %d RightWall : %d\n"
-        ,YellowX,YellowY,BlueX,BlueY,LeftWall,RightWall);
+        printf("MyGoalX : %d Y : %d OpponentGoalX : %d Y : %d LeftWall : %d RightWall : %d\n"
+        ,MyGoalX,MyGoalY,OpponentGoalX,OpponentGoalY,LeftWall,RightWall);
     }
 }

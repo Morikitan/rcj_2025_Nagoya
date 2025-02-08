@@ -17,10 +17,15 @@ char LineSensorABCD[16];
 char LineSensorE[16];
 int AllLineSensorA, AllLineSensorB, AllLineSensorC, AllLineSensorD, AllLineSensorE, AllLineSensor;
 int ErorrLineSensor;
-int YellowX;
-int YellowY;
-int BlueX;
-int BlueY;
+char isYellowMyGoal;
+int MyGoalX;
+int MyGoalY;
+int OpponentGoalX;
+int OpponentGoalY;
+float MyGoalAngle;
+float MyGoalDistance;
+float OpponentGoalAngle;
+float OpponentGoalDistance;
 int LeftWall;
 int RightWall;
 int MotorDuty[4];
@@ -38,6 +43,9 @@ void VariableSetup(){
   *******************/
   SerialWatch = 'b';
 
+  //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
+  isYellowMyGoal = 1;
+
   //mode
   mode = 99;  //mode = 99で全部正転
 
@@ -49,7 +57,6 @@ void VariableSetup(){
   //line sensor
   ErorrLineSensor = 0;
 
-  //others 
   makao = 0;
 }
 
