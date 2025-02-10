@@ -131,7 +131,6 @@ void Attack(){
       
       MainPreTime = time_us_32();
       while (LineDeltaTime < 0.03) {
-        UseBLE();
         UseAllSensor();
         if (AllLineSensor <= ErorrLineSensor) {
           LineDeltaTime += (time_us_32() - MainPreTime) / 1000000;
@@ -140,7 +139,7 @@ void Attack(){
         }
         DeltaTime += (time_us_32() - MainPreTime) / 1000000;
         MainPreTime = time_us_32();
-        if(DeltaTime > 0.5){
+        if(DeltaTime > 0.5 && isMotorDutyLine == true){
           if (AngleX > 180) {
             if (TurnSpeed * (360 - AngleX) / 180 > 40) {
               AngleSpeed = 40;
@@ -175,7 +174,6 @@ void Attack(){
             //左側のゴール奥
             isBreak = false;
             while (AngleX < 210) {
-                UseBLE();
                 UseLineSensor();
                 UseGyroSensor();
                 MainMotorState(1, 0, LeastTurnSpeed);
@@ -192,7 +190,6 @@ void Attack(){
             //右側のゴール奥
             isBreak = false;
             while (AngleX > 150) {
-                UseBLE();
                 UseLineSensor();
                 UseGyroSensor();
                 MainMotorState(1, 1, LeastTurnSpeed);
@@ -206,7 +203,6 @@ void Attack(){
             }
             if(isBreak = false) Makao(true,240);
           }else if(OpponentGoalDistance < 100){
-            //マカオシュートする
             if (180 < OpponentGoalAngle) {
               //ゴールの左側にいるとき
               Makao(true,270);
@@ -237,7 +233,6 @@ void Attack(){
             if (AngleX > 180) {
               sleep_ms(50);
               while (AngleX > 189) {
-                UseBLE();
                 UseLineSensor();
                 UseGyroSensor();
                 MainMotorState(1, 1, LeastTurnSpeed);
@@ -252,7 +247,6 @@ void Attack(){
             } else {
               sleep_ms(50);
               while (AngleX < 171) {
-                UseBLE();
                 UseLineSensor();
                 UseGyroSensor();
                 MainMotorState(1, 0, LeastTurnSpeed);
@@ -355,7 +349,6 @@ void Makao(bool isClockWise,int TargetAngle){
   sleep_ms(100);
   if(isClockWise == true){
     while (TargetAngle - 150 < AngleX && AngleX <= TargetAngle) {
-      UseBLE();
       UseLineSensor();
       UseGyroSensor();
       MainMotorState(1, 3, 255);
@@ -389,10 +382,7 @@ void Makao(bool isClockWise,int TargetAngle){
       }
     }
   }else{
-    Brake();
-    sleep_ms(100);  //とりあえずマカオシュートの前に待ってる。いらないかもです。
     while (TargetAngle <= AngleX && AngleX < TargetAngle + 150) {
-      UseBLE();
       UseLineSensor();
       UseGyroSensor();
       MainMotorState(1, 1, (int)((TargetAngle + 120 - AngleX) * 3));

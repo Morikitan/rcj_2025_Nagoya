@@ -41,7 +41,7 @@ void VariableSetup(){
   B BLEの接続状況
   c カメラの値
   *******************/
-  SerialWatch = 'b';
+  SerialWatch = 'l';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
   isYellowMyGoal = 1;

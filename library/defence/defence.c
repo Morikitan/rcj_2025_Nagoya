@@ -466,3 +466,10 @@ void DefenceStart() {
   sleep_ms(250);
   DefenceTime = 0;
 }
+
+void Return(){
+  MotorDuty[0] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+  MotorDuty[1] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+  MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+  MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+}

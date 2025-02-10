@@ -18,20 +18,21 @@ uint32_t PreTime = 0;
 
 int main()
 {
-    VariableSetup();
     stdio_init_all();
+    
+    VariableSetup();
+    
     PinSetup();
 
     gpio_put(Bupin,1);
-
-    CameraSetup();
+    
+    //CameraSetup();
     //GyroSetup();
-    //LineSetup();
+    int ReturnData = LineSetup();
+    printf("i2c : %d\n",ReturnData);
     //MotorSetup();
     //Nano33IoTSetup();
-
     gpio_put(Bupin,0);
-
     while (true) {
         if(SerialWatch == 't'){
             printf("経過時間%fミリ秒\n",(time_us_32()-PreTime)/1000.0);
@@ -56,8 +57,27 @@ int main()
             Attack();
         }else if(mode == 3 || mode == 4){
             Defence();
+        }else if(mode == 7 || mode == 9){
+            //ディフェンスからアタッカーに替わるときの初期化
+            float PreTime = 0;
+            float Time = 0;
+            while(Time < 0.1){
+                UseLineSensor();
+                UseGyroSensor();
+                MotorDuty[0] = 100;
+                MotorDuty[1] = 100;
+                MotorDuty[2] = 100;
+                MotorDuty[3] = 100;
+                Turn();
+                UseMotorDuty();
+                if(AllLineSensor <= ErorrLineSensor){
+                    Time += time_us_32() / 1000000.0 - PreTime;
+                }
+                PreTime = time_us_32() / 1000000.0;
+            }
+            mode -= 4;
         }else{
-            UseCamera();
+            UseLineSensor();
         }
     }
 }
