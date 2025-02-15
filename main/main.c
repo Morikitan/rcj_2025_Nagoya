@@ -21,9 +21,10 @@ int main()
     stdio_init_all();
     
     VariableSetup();
-    
+    sleep_ms(3000);
+    printf("1");
     PinSetup();
-
+    printf("2");
     gpio_put(Bupin,1);
     
     //CameraSetup();

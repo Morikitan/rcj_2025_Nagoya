@@ -14,20 +14,7 @@ int LineSetup(){
     gpio_set_function(SCL0pin, GPIO_FUNC_I2C);
     gpio_pull_up(SCL0pin);
     gpio_pull_up(SDA0pin);
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x00,0xFF},2,true);
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x01,0xFF},2,true);
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x00,0xFF},2,true);
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x01,0xFF},2,true);
     int i2c_result;
-    //i2c_write_byte_raw(i2c0,MCP23017_ADDRESS_1);
-    //i2c_result = i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x05,0x80},2,true);
-    if(i2c_result == PICO_ERROR_GENERIC || i2c_result == PICO_ERROR_TIMEOUT){
-        return i2c_result;
-    }
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x05,0x80},2,true);
-    if(i2c_result == PICO_ERROR_GENERIC || i2c_result == PICO_ERROR_TIMEOUT){
-        return i2c_result;
-    }
     return 0;
 }
 
@@ -35,9 +22,10 @@ void UseLineSensor(){
     uint8_t data1;
     uint8_t data2;
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x12},1,true);
-    i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data1,1,false);
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x13},1,true);
+    i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data1,1,true);
+    //i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x13},1,true);
     i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data2,1,false);
+    printf("data1 : 0x%x data2 : 0x%x ",data1,data2);
     if(SerialWatch == 'l')printf("AB : ");
     for(int a = 0;a < 8;a++){
         LineSensorABCD[a] = (data1 >> a) & 1 ;
@@ -49,8 +37,7 @@ void UseLineSensor(){
         if(SerialWatch == 'l')printf("%d ",LineSensorABCD[a]);
     }
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x12},1,true);
-    i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data1,1,false);
-    i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x13},1,true);
+    i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data1,1,true);
     i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data2,1,false);
     if(SerialWatch == 'l')printf("E : ");
     for(int a = 0;a < 8;a++){
