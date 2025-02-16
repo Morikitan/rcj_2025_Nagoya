@@ -166,12 +166,13 @@ void Attack(){
       UseBallSensor();
       UseCamera();
       if (BallAngle == 999) {
+        isMotorDutyLine = false;
         //マカオシュートの準備～実行
         if (AngleX > 170 && AngleX < 190) {
           //マカオシュートする
           //反転してるのでカメラの向きが変わる
           if(225 < OpponentGoalAngle && OpponentGoalAngle < 360){
-            //左側のゴール奥
+            //ゴールの左側の奥
             isBreak = false;
             while (AngleX < 210) {
                 UseLineSensor();
@@ -187,7 +188,7 @@ void Attack(){
             }
             if(isBreak = false) Makao(false,120);
           }else if(0 < OpponentGoalAngle && OpponentGoalAngle < 135){
-            //右側のゴール奥
+            //ゴールの右側の奥
             isBreak = false;
             while (AngleX > 150) {
                 UseLineSensor();
@@ -211,6 +212,7 @@ void Attack(){
               Makao(false,90);
             }
           }else{
+            isMotorDutyLine = true;
             if(OpponentGoalAngle < 180){
               //ゴールが左側にある
               ChaseBall(OpponentGoalAngle - 20,true);
@@ -261,6 +263,7 @@ void Attack(){
             }
           }
       } else {
+        isMotorDutyLine = true;
         //ボールを拾いに行く
         if (BallAngle == -999) {
           //ボールがどこかわからない
@@ -355,6 +358,7 @@ void Makao(bool isClockWise,int TargetAngle){
       MainMotorState(2, 0, (int)((AngleX - (TargetAngle - 120) * 3)));
       MainMotorState(3, 1, (int)((AngleX - (TargetAngle - 120) * 3)));
       MainMotorState(4, 1, (int)((AngleX - (TargetAngle - 120) * 3)));
+
       if(AngleX > TargetAngle - 10) DribblerMotorState(3,190);
 
       if(AllLineSensor > ErorrLineSensor){
@@ -389,6 +393,7 @@ void Makao(bool isClockWise,int TargetAngle){
       MainMotorState(2, 1, (int)((TargetAngle + 120 - AngleX) * 3));
       MainMotorState(3, 0, (int)((TargetAngle + 120 - AngleX) * 3));
       MainMotorState(4, 3, 255);
+
       if(AngleX < TargetAngle + 10) DribblerMotorState(3,190);
 
       if(AllLineSensor > ErorrLineSensor){

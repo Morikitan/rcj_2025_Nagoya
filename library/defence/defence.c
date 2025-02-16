@@ -9,9 +9,12 @@
 #include "hardware/pwm.h"
 #include "hardware/gpio.h"
 #include <stdio.h>
+#include <math.h>
 
 float DefenceTime = 0;
 float DefenceDeltaTime = 0;
+#define WallDistance 80 //ゴールラインがない時の壁からの距離
+#define GoalDistance 70 //線上にいるときの自分のゴールの距離
 
 void Defence(){
     //ディフェンダー
@@ -36,7 +39,7 @@ void Defence(){
         MainMotorState(3, 1, 85);
         MainMotorState(4, 1, 85);
       }
-    } else if(AllLineSensorB + AllLineSensorE > 0 && AllLineSensorD + LineSensorE[11] + LineSensorE[12] + LineSensorE[13]== 0){
+    } else if(AllLineSensorB + AllLineSensorE > 0 && AllLineSensorD + LineSensorE[11] + LineSensorE[12] + LineSensorE[13]== 0 && RightWall < WallDistance){
       gpio_put(TSpin6,1);
       while(AllLineSensorD == 0){
         UseBLE();
@@ -108,7 +111,7 @@ void Defence(){
         }
       }
       gpio_put(TSpin6,0);
-    }else if(AllLineSensorD + AllLineSensorE > 0 && AllLineSensorB + LineSensorE[3] + LineSensorE[4] + LineSensorE[5] == 0){
+    }else if(AllLineSensorD + AllLineSensorE > 0 && AllLineSensorB + LineSensorE[3] + LineSensorE[4] + LineSensorE[5] == 0 && LeftWall < WallDistance){
       gpio_put(TSpin6,1);
       while(AllLineSensorB == 0){
         UseBLE();
@@ -205,10 +208,17 @@ void Defence(){
         MotorDuty[3] = DefaultSpeed4;
         DefenceTime = 0;
       } else if(AllLineSensor == 0){
-        MotorDuty[0] = -75;
-        MotorDuty[1] = -75;
-        MotorDuty[2] = -75;
-        MotorDuty[3] = -75;
+        
+        if(MyGoalDistance < GoalDistance){
+          //線上の線を踏めないところ
+          MotorDuty[0] = -75;
+          MotorDuty[1] = -75;
+          MotorDuty[2] = -75;
+          MotorDuty[3] = -75;
+        }else{
+          //線上にいない　→　線上に戻る
+          DefenceStart();
+        }
       }else{
         //正面にボールがある → 待機
         MotorDuty[0] = 0;
@@ -248,44 +258,7 @@ void Defence(){
             DefenceDeltaTime = time_us_32() / 1000000.0;
           }
           UseLineSensor();
-          while(AllLineSensor == 0){
-            UseBLE();
-            UseLineSensor();
-            UseGyroSensor();
-            MotorDuty[0] = -80;
-            MotorDuty[1] = -80;
-            MotorDuty[2] = -85;
-            MotorDuty[3] = -85;
-            //正面を向くための補正
-            Turn();
-            //計算した値を出力
-            UseMotorDuty();
-          }
-          Brake();
-          sleep_ms(250);
-          DefenceTime = 0;
-          DefenceDeltaTime = time_us_32() / 1000000.0;
-          while(AllLineSensorB == 0 || AllLineSensorD == 0){
-            UseAllSensor();
-            if(AllLineSensorC + LineSensorE[6] + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] + LineSensorE[10] > 0 || DefenceTime > 1.0){
-              MotorDuty[0] = -50;
-              MotorDuty[1] = -50;
-              MotorDuty[2] = -50;
-              MotorDuty[3] = -50;
-            }else{
-              MotorDuty[0] = 50;
-              MotorDuty[1] = 50;
-              MotorDuty[2] = 50;
-              MotorDuty[3] = 50;
-            }
-            Turn();
-            UseMotorDuty();
-            DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-            DefenceDeltaTime = time_us_32() / 1000000.0;
-          }
-          Brake();
-          sleep_ms(250);
-          DefenceTime = 0;
+          DefenceStart();     
         }
       }
       DefenceDeltaTime = time_us_32() / 1000000.0;
@@ -386,17 +359,6 @@ void Turn(){
 void DefenceStart() {
   UseGyroSensor();
   UseBallSensor();
-  bool isKaiten = false;
-  bool BallMuki;
-  if(BallAngle == -999){
-    isKaiten = true;
-  }else{
-    if(0 <= BallAngle && BallAngle < 180){
-      BallMuki = false; //自ゴールから見て右側にいる
-    }else{
-      BallMuki = true; //自ゴールから見て左側にいる
-    }
-  }
   while (10 < AngleX && AngleX < 350) {
     UseAllSensor();
     MainMotorState(1, 0, LeastTurnSpeed);
@@ -404,42 +366,14 @@ void DefenceStart() {
     MainMotorState(3, 1, LeastTurnSpeed);
     MainMotorState(4, 1, LeastTurnSpeed);
   }
-  Brake();
-  sleep_ms(250);
-  if(isKaiten == true){
-    do{
-      UseBallSensor();
-    }while(BallAngle = -999);
-    if(0 <= BallAngle && BallAngle < 180){
-      BallMuki = true; //自ゴールから見て左側にいる
-    }else{
-      BallMuki = false; //自ゴールから見て右側にいる
-    }
-  }
   UseLineSensor();
   while (AllLineSensorC == 0 && AllLineSensorE == 0) {
     UseAllSensor();
-    if (BallAngle < 170 || 190 < BallAngle) {
-      if(BallMuki == false){
-        //自ゴールから見て右側にいる
-        MotorDuty[0] = -120;
-        MotorDuty[1] = -80;
-        MotorDuty[2] = -120;
-        MotorDuty[3] = -80;
-      }else{
-        //自ゴールから見て左側にいる
-        MotorDuty[0] = -80;
-        MotorDuty[1] = -120;
-        MotorDuty[2] = -80;
-        MotorDuty[3] = -120;
-      }
-      //正面を向くための補正
-      Turn();
-      //計算した値を出力
-      UseMotorDuty();
-    }else{
-      Brake();
-    }   
+    Return();
+    //正面を向くための補正
+    Turn();
+    //計算した値を出力
+    UseMotorDuty(); 
   }
   //位置の微調整
   DefenceTime = 0;
@@ -468,8 +402,30 @@ void DefenceStart() {
 }
 
 void Return(){
-  MotorDuty[0] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
-  MotorDuty[1] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
-  MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
-  MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+  if(MyGoalDistance == 999){
+    if(OpponentGoalDistance == 999){
+      //壁を利用する
+      if(RightWall < LeftWall){
+        MotorDuty[0] = (int)(DefaultSpeed * cos((210 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[1] = (int)(DefaultSpeed * sin((210 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[2] = (int)(DefaultSpeed * cos((210 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[3] = (int)(DefaultSpeed * sin((210 * -1 + 45) * 3.1415 / 180));
+      }else{
+        MotorDuty[0] = (int)(DefaultSpeed * cos((150 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[1] = (int)(DefaultSpeed * sin((150 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[2] = (int)(DefaultSpeed * cos((150 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[3] = (int)(DefaultSpeed * sin((150 * -1 + 45) * 3.1415 / 180));
+      }
+    }else{
+      MotorDuty[0] = (int)(DefaultSpeed * cos(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
+      MotorDuty[1] = (int)(DefaultSpeed * sin(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
+      MotorDuty[2] = (int)(DefaultSpeed * cos(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
+      MotorDuty[3] = (int)(DefaultSpeed * sin(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
+    }
+  }else{
+    MotorDuty[0] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+    MotorDuty[1] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+    MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+    MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+  } 
 }

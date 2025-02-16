@@ -87,9 +87,10 @@ void UseBLE(){
             }
             while(!uart_is_readable(uart1)){}
 
-            uart_read_blocking(uart1,&data,1); 
+            uart_read_blocking(uart1,&data,1);
+
             if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){
-                BallAngle = -999;
+                //BallAngle = -999;
                 if(SerialWatch == 'B'){
                     printf("データの受信に失敗しました\n");
                 }
@@ -115,6 +116,7 @@ void UseBLE(){
                             printf("データを待っています\n");
                         }
                     }
+                    uart_read_blocking(uart1,&data,1); 
                     if(data == PICO_ERROR_TIMEOUT || data == PICO_ERROR_GENERIC){
                         if(SerialWatch == 'B'){
                             printf("データの受信に失敗しました\n");
