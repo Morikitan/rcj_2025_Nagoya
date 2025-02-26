@@ -105,10 +105,16 @@ void DribblerMotorState(int state,int speed){
 //(pico) 125×1000×1000 = f × clkdiv × (warp + 1) clkdiv = 488.281
 //よって今は f = 1.0[kHz]
 void analogWrite(int gpio,int duty){
-  uint slice_num = pwm_gpio_to_slice_num(gpio);
-  uint channel = pwm_gpio_to_channel(gpio);
-  pwm_set_clkdiv(slice_num, 488.281);
-  pwm_set_wrap(slice_num, 255);
-  pwm_set_chan_level(slice_num, channel, duty);
-  pwm_set_enabled(slice_num, true);
+  if(duty == 255){
+    gpio_set_dir(gpio,GPIO_OUT);
+    gpio_put(gpio,1);
+  }else{
+    gpio_set_dir(gpio,GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(gpio);
+    uint channel = pwm_gpio_to_channel(gpio);
+    pwm_set_clkdiv(slice_num, 488.281);
+    pwm_set_wrap(slice_num, 255);
+    pwm_set_chan_level(slice_num, channel, duty);
+    pwm_set_enabled(slice_num, true);
+  }
 }

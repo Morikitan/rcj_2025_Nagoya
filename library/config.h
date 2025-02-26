@@ -47,16 +47,14 @@ extern int makao;
 #define LeastTurnSpeed 40
 #define LeastSpeed 60
 #define TurnSpeed 120
-#define DefenceTurnSpeed 120
 #define DefaultSpeed 220
 #define DefaultSpeed1 100
 #define DefaultSpeed2 125
 #define DefaultSpeed3 125
 #define DefaultSpeed4 100
-#define LineSpeed 120
-#define RDefence 10
-#define LDefence 10
+#define LineSpeed 200
 #define DefenceSpeed 120
+#define SinSpeed 30
 
 //MainMotor
 #define MMpin1_1 6

@@ -21,10 +21,7 @@ int main()
     stdio_init_all();
     
     VariableSetup();
-    sleep_ms(3000);
-    printf("1");
     PinSetup();
-    printf("2");
     gpio_put(Bupin,1);
     
     //CameraSetup();
@@ -42,9 +39,15 @@ int main()
         if(mode = 0){
             if(gpio_get(TSpin1 == 1)){
                 mode = 1;
+                //割り込み処理を行う
+                gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&Attack);
+
                 DribblerMotorState(0,255);
             }else if(gpio_get(TSpin2 == 1)){
                 mode = 2;
+                //割り込み処理を行う
+                gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&Attack);
+                
                 DribblerMotorState(0,255);
             }else if(gpio_get(TSpin3 == 1)){
                 mode = 3;
@@ -77,6 +80,8 @@ int main()
                 PreTime = time_us_32() / 1000000.0;
             }
             mode -= 4;
+            //割り込み処理を行う
+            gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
             UseLineSensor();
         }

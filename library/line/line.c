@@ -12,8 +12,10 @@ int LineSetup(){
     i2c_init(i2c0,400000);
     gpio_set_function(SDA0pin, GPIO_FUNC_I2C);
     gpio_set_function(SCL0pin, GPIO_FUNC_I2C);
-    gpio_pull_up(SCL0pin);
-    gpio_pull_up(SDA0pin);
+    //割り込みを有効化
+    i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x04,0xFF,0xFF},3,false);
+    i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x08,0xFF,0xFF},3,false);
+    i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x0A,0x42},2,false);
     int i2c_result;
     return 0;
 }

@@ -93,9 +93,10 @@ void PinSetup(){
   gpio_set_dir(TSpin2,GPIO_IN);
   gpio_set_dir(TSpin3,GPIO_IN);
   gpio_set_dir(TSpin4,GPIO_IN);
-  gpio_set_dir(TSpin5,GPIO_OUT);
+  gpio_set_dir(TSpin5,GPIO_IN);
   gpio_set_dir(TSpin6,GPIO_OUT);
   gpio_set_dir(Bupin,GPIO_OUT);
+  gpio_pull_down(TSpin5);
 }
 
 void UseAllSensor(){

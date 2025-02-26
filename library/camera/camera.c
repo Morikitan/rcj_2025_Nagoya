@@ -78,7 +78,7 @@ void UseCamera(){
     }
     
     if(SerialWatch = 'c'){
-        printf("MyGoalX : %d Y : %d OpponentGoalX : %d Y : %d LeftWall : %d RightWall : %d\n"
-        ,MyGoalX,MyGoalY,OpponentGoalX,OpponentGoalY,LeftWall,RightWall);
+        printf("MyGoalDis : %f Angle : %f OppGoalDis : %f Angle : %d LeftWall : %d RightWall : %d\n"
+        ,MyGoalDistance,MyGoalAngle,OpponentGoalDistance,OpponentGoalAngle,LeftWall,RightWall);
     }
 }
