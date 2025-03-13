@@ -201,7 +201,7 @@ void LineMove(){
       float DeltaTime = 0.0;
       Brake();
       int LineDuty[4];
-      if(time_us_32() / 1000000.0 - MainPreTime < 0.5 && (LeftWall < 50 || RightWall < 50) && (AngleX < 10 || 350 < AngleX)){
+      if(time_us_32() / 1000000.0 - MainPreTime < 1.0 && (LeftWall < 50 || RightWall < 50) && (AngleX < 10 || 350 < AngleX)){
         //少し線にめり込めるようにする
         if(LeftWall < 50){
           if(AllLineSensorD + LineSensorABCD[0] + LineSensorABCD[1] + LineSensorABCD[10] + LineSensorABCD[11] + LineSensorE[0] + LineSensorE[8] + LineSensorE[9] + LineSensorE[10] + LineSensorE[11] + LineSensorE[12] + LineSensorE[13] + LineSensorE[14] + LineSensorE[15]){
@@ -236,6 +236,33 @@ void LineMove(){
           }else{
             MainPreTime = time_us_32() / 1000000.0;
             return;
+          }
+        }
+      }else if(time_us_32() / 1000000.0 - MainPreTime < 1.1 && (LeftWall < 50 || RightWall < 50) && (AngleX < 10 || 350 < AngleX)){
+        //少し線にめり込めるようにする
+        if(LeftWall < 50){
+          if(OpponentGoalAngle > 60 && OpponentGoalAngle != 999){
+            LineDuty[0] = LineSpeed / 4;
+            LineDuty[1] = -LineSpeed / 2;
+            LineDuty[2] = LineSpeed / 4;
+            LineDuty[3] = -LineSpeed / 2;
+          }else{
+            LineDuty[0] = LineSpeed / 2;
+            LineDuty[1] = -LineSpeed / 2;
+            LineDuty[2] = LineSpeed / 2;
+            LineDuty[3] = -LineSpeed / 2;
+          }
+        }else{
+          if(OpponentGoalAngle < 300){
+            LineDuty[0] = -LineSpeed / 2;
+            LineDuty[1] = LineSpeed / 4;
+            LineDuty[2] = -LineSpeed / 2;
+            LineDuty[3] = LineSpeed / 4;
+          }else{
+            LineDuty[0] = -LineSpeed / 2;
+            LineDuty[1] = LineSpeed / 2;
+            LineDuty[2] = -LineSpeed / 2;
+            LineDuty[3] = LineSpeed / 2;
           }
         }
       }else{
@@ -361,7 +388,7 @@ void ChaseBall(float angle,bool isMakao){
   if(isMakao == true)SinSpeed2 = SinSpeed * sin(BallPreTime / 1000000.0);
   else SinSpeed2 = 0;
   //壁際に近い時は減速する
-  if(LeftWall < 60 || RightWall < 60) Gensoku = 0.6;
+  if(LeftWall < 70 || RightWall < 70) Gensoku = 0.6;
   else Gensoku = 1.0;
 
   MotorDuty[0] = (int)(DefaultSpeed * cos((angle * -1 + 45) * 3.1415 / 180) * Gensoku + AngleSpeed + SinSpeed2);

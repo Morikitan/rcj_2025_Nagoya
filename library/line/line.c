@@ -23,32 +23,56 @@ int LineSetup(){
 void UseLineSensor(){
     uint8_t data1;
     uint8_t data2;
+    float I2CTime = time_us_32() / 1000000.0;
+    bool isTimeOut = false;
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x12},1,true);
-    i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data1,1,true);
-    //i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x13},1,true);
-    i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data2,1,false);
-    printf("data1 : 0x%x data2 : 0x%x ",data1,data2);
-    if(SerialWatch == 'l')printf("AB : ");
-    for(int a = 0;a < 8;a++){
-        LineSensorABCD[a] = (data1 >> a) & 1 ;
-        if(SerialWatch == 'l')printf("%d ",LineSensorABCD[a]);
+    while(i2c_get_read_available(i2c0)){
+        if(time_us_32() / 1000000.0 - I2CTime > 0.2){
+            isTimeOut = true;
+            break;
+        }
     }
-    if(SerialWatch == 'l')printf("CD : ");
-    for(int a = 8;a < 16;a++){
-        LineSensorABCD[a] = (data2 >> a-8) & 1 ;
-        if(SerialWatch == 'l')printf("%d ",LineSensorABCD[a]);
+    if(isTimeOut){
+        if(SerialWatch == 'l')printf("0x20はエラー");
+    }else{
+        i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data1,1,true);
+        //i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x13},1,true);
+        i2c_read_blocking(i2c0,MCP23017_ADDRESS_1,&data2,1,false);
+        //printf("data1 : 0x%x data2 : 0x%x ",data1,data2);
+        if(SerialWatch == 'l')printf("AB : ");
+        for(int a = 0;a < 8;a++){
+            LineSensorABCD[a] = (data1 >> a) & 1 ;
+            if(SerialWatch == 'l')printf("%d ",LineSensorABCD[a]);
+        }
+        if(SerialWatch == 'l')printf("CD : ");
+        for(int a = 8;a < 16;a++){
+            LineSensorABCD[a] = (data2 >> a-8) & 1 ;
+            if(SerialWatch == 'l')printf("%d ",LineSensorABCD[a]);
+        }
     }
+    isTimeOut = false;
+    I2CTime = time_us_32() / 1000000.0;
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x12},1,true);
-    i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data1,1,true);
-    i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data2,1,false);
-    if(SerialWatch == 'l')printf("E : ");
-    for(int a = 0;a < 8;a++){
-        LineSensorE[a] = (data1 >> a) & 1 ;
-        if(SerialWatch == 'l')printf("%d ",LineSensorE[a]);
+    while(i2c_get_read_available(i2c0)){
+        if(time_us_32() / 1000000.0 - I2CTime > 0.2){
+            isTimeOut = true;
+            break;
+        }
     }
-    for(int a = 8;a < 16;a++){
-        LineSensorE[a] = (data2 >> a-8) & 1 ;
-        if(SerialWatch == 'l')printf("%d ",LineSensorE[a]);
+    if(isTimeOut){
+        if(SerialWatch == 'l')printf("0x21はエラー");
+    }else{
+        i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data1,1,true);
+        i2c_read_blocking(i2c0,MCP23017_ADDRESS_2,&data2,1,false);
+        if(SerialWatch == 'l')printf("E : ");
+        for(int a = 0;a < 8;a++){
+            LineSensorE[a] = (data1 >> a) & 1 ;
+            if(SerialWatch == 'l')printf("%d ",LineSensorE[a]);
+        }
+        for(int a = 8;a < 16;a++){
+            LineSensorE[a] = (data2 >> a-8) & 1 ;
+            if(SerialWatch == 'l')printf("%d ",LineSensorE[a]);
+        }
     }
     if(SerialWatch == 'l') printf("\n");
     AllLineSensorA = LineSensorABCD[0] + LineSensorABCD[1] + LineSensorABCD[2] + LineSensorABCD[3];
