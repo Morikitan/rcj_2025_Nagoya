@@ -6,6 +6,7 @@
 #include <math.h>
 
 int CameraDataNumber = 1;
+int HowManyData = 0;
 unsigned char CameraData[] = {0,0,0,0,0,0};
 unsigned char data = 0;
 
@@ -13,13 +14,11 @@ void CameraSetup(){
     uart_init(uart0,9600);
     gpio_set_function(TX0pin, GPIO_FUNC_UART);  // TXピン
     gpio_set_function(RX0pin, GPIO_FUNC_UART);  // RXピン
-
-    gpio_pull_up(TX0pin);
-    gpio_pull_up(RX0pin);
 }
 
 //開始ビットを決めて制御する
 void UseCamera(){
+    //HowManyData = 0;
     while(uart_is_readable(uart0)){
         uart_read_blocking(uart0,&data,1);
         if(data = 0x02){
@@ -29,6 +28,8 @@ void UseCamera(){
         }
         if(CameraDataNumber == 6)CameraDataNumber = 1;
         else CameraDataNumber++;  
+        HowManyData++;
+        printf("%x %d",data,HowManyData);
     }
 
     if(isYellowMyGoal == 1){
@@ -78,7 +79,7 @@ void UseCamera(){
     }
     
     if(SerialWatch = 'c'){
-        printf("MyGoalDis : %f Angle : %f OppGoalDis : %f Angle : %d LeftWall : %d RightWall : %d\n"
-        ,MyGoalDistance,MyGoalAngle,OpponentGoalDistance,OpponentGoalAngle,LeftWall,RightWall);
+        printf("MyGoalDis : %f Angle : %f OppGoalDis : %f Angle : %d LWall : %d RWall : %d\n"
+        ,data,MyGoalDistance,MyGoalAngle,OpponentGoalDistance,OpponentGoalAngle,LeftWall,RightWall);
     }
 }

@@ -30,6 +30,9 @@ int LeftWall;
 int RightWall;
 int MotorDuty[4];
 int makao;
+float PMotorDuty[4] = {0,0,0,0};
+
+#define Kp 0.3
 
 void VariableSetup(){
   /*******************
@@ -40,8 +43,9 @@ void VariableSetup(){
   t 1回の経過時間(ミリ秒)
   B BLEの接続状況
   c カメラの値
+  v ベクトル
   *******************/
-  SerialWatch = 'l';
+  SerialWatch = 'c';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
   isYellowMyGoal = 1;
@@ -56,6 +60,18 @@ void VariableSetup(){
 
   //line sensor
   ErorrLineSensor = 0;
+
+  //camera
+  MyGoalX = 0;
+  MyGoalY = 0;
+  OpponentGoalX = 0;
+  OpponentGoalY = 0;
+  MyGoalAngle = 0;
+  MyGoalDistance = 0;
+  OpponentGoalAngle = 0;
+  OpponentGoalDistance = 0;
+  LeftWall = 0;
+  RightWall = 0;
 
   makao = 0;
 }
@@ -105,4 +121,30 @@ void UseAllSensor(){
   UseGyroSensor();
   UseBLE();
   UseCamera();
+}
+
+void UsePMotorDuty() {
+  for (int a = 0; a <= 3; a++) {
+    if (PMotorDuty[a] > 255) {
+      MainMotorState(a + 1, 0, 255);
+    } else if (PMotorDuty[a] > 0) {
+      MainMotorState(a + 1, 0, (int)(PMotorDuty[a]));
+    } else if (PMotorDuty[a] > -255) {
+      MainMotorState(a + 1, 1, (int)(PMotorDuty[a] * -1));
+    } else {
+      MainMotorState(a + 1, 1, 255);
+    }
+  }
+}
+
+void PMainMotorState(int motor, int state, int speed){
+  if(state == 0){
+    PMotorDuty[motor - 1] += (speed - PMotorDuty[motor - 1]) * Kp;
+  }else if(state == 1){
+    PMotorDuty[motor - 1] -= (speed + PMotorDuty[motor - 1]) * Kp;
+  }else if(state == 2){
+    PMotorDuty[motor - 1] -= PMotorDuty[motor - 1] * Kp;
+  }else if(state == 3){
+    PMotorDuty[motor - 1] = 0;
+  }
 }

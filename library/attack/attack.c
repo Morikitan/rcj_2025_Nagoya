@@ -16,6 +16,7 @@ float AngleSpeed = 0;
 float AngleSpeedI = 0;
 uint32_t BallPreTime = 0;
 uint32_t MainPreTime = 0;
+uint32_t PreTime1;
 bool isBreak = false;
 bool isMotorDutyLine = false;
 
@@ -28,12 +29,10 @@ void Attack(){
     UseGyroSensor();
     UseBallSensor();
     UseCamera();
-    if (BallAngle == 999) {
+    if (BallAngle == 999 && (time_us_32() - PreTime1) / 10000000.0 > 0.1) {
       isMotorDutyLine = false;
       //マカオシュートの準備～実行
-      if (AngleX > 170 && AngleX < 190) {
-        //マカオシュートする
-        //反転してるのでカメラの向きが変わる
+        //反転してるときはカメラの向きが変わる
         if((AngleX <= 180 &&               60 + AngleX < OpponentGoalAngle && OpponentGoalAngle < 180 + AngleX) ||
          (180 < AngleX && AngleX <= 300 && AngleX - 180 < OpponentGoalAngle && OpponentGoalAngle < 60 + AngleX) ||
          (AngleX > 300 &&                  AngleX - 300 < OpponentGoalAngle && OpponentGoalAngle < AngleX - 180) ){
@@ -130,39 +129,8 @@ void Attack(){
             }
           }
         }
-      } else {
-        //後ろを向く
-        if (AngleX > 180) {
-          sleep_ms(50);
-          while (AngleX > 189) {
-            UseLineSensor();
-            UseGyroSensor();
-            MainMotorState(1, 1, LeastTurnSpeed);
-            MainMotorState(2, 1, LeastTurnSpeed);
-            MainMotorState(3, 0, LeastTurnSpeed);
-            MainMotorState(4, 0, LeastTurnSpeed);
-            if(AllLineSensor > ErorrLineSensor){
-              break;
-            }
-          }
-          Brake();
-        } else {
-          sleep_ms(50);
-          while (AngleX < 171) {
-            UseLineSensor();
-            UseGyroSensor();
-            MainMotorState(1, 0, LeastTurnSpeed);
-            MainMotorState(2, 0, LeastTurnSpeed);
-            MainMotorState(3, 1, LeastTurnSpeed);
-            MainMotorState(4, 1, LeastTurnSpeed);
-            if(AllLineSensor > ErorrLineSensor){
-              break;
-            }
-          }
-          Brake();
-        }
-      }
     } else {
+      if(BallAngle != 999) PreTime1 = time_us_32();
       isMotorDutyLine = true;
       //ボールを拾いに行く
       if (BallAngle == -999) {

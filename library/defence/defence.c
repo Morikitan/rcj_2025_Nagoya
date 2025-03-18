@@ -13,262 +13,14 @@
 
 float DefenceTime = 0;
 float DefenceDeltaTime = 0;
+float TurnDuty;
+float VectorAbsoluteValue = 0;
+float DefenceAngle;
 #define WallDistance 80 //ゴールラインがない時の壁からの距離
 #define GoalDistance 70 //線上にいるときの自分のゴールの距離
 
 void Defence(){
-    //ディフェンダー
-    UseAllSensor();
-    if (AllLineSensorA > 0) {
-      //A群が反応 → 上がる{
-        while (AllLineSensorE == 0) {
-          UseBLE();
-          UseLineSensor();
-          MainMotorState(1, 0, 80);
-          MainMotorState(2, 0, 80);
-          MainMotorState(3, 0, 80);
-          MainMotorState(4, 0, 80);
-        }
-    } else if (AllLineSensorC > 0) {
-      //C群が反応 → 下がる
-      while (AllLineSensorE == 0) {
-        UseBLE();
-        UseLineSensor();
-        MainMotorState(1, 1, 80);
-        MainMotorState(2, 1, 80);
-        MainMotorState(3, 1, 85);
-        MainMotorState(4, 1, 85);
-      }
-    } else if(AllLineSensorB + AllLineSensorE > 0 && AllLineSensorD + LineSensorE[11] + LineSensorE[12] + LineSensorE[13]== 0 && RightWall < WallDistance){
-      gpio_put(TSpin6,1);
-      while(AllLineSensorD == 0){
-        UseBLE();
-        UseAllSensor();
-        if(0 <= BallAngle && BallAngle < 180){
-          if(180 < AngleX && AngleX <= 355){
-            MainMotorState(1, 0, LeastTurnSpeed);
-            MainMotorState(2, 0, LeastTurnSpeed);
-            MainMotorState(3, 1, LeastTurnSpeed);
-            MainMotorState(4, 1, LeastTurnSpeed);
-          }else if(5 <= AngleX && AngleX < 180){
-            MainMotorState(1, 1, LeastTurnSpeed);
-            MainMotorState(2, 1, LeastTurnSpeed);
-            MainMotorState(3, 0, LeastTurnSpeed);
-            MainMotorState(4, 0, LeastTurnSpeed);
-          }else if(AllLineSensorB == 0 && AllLineSensorD == 0 && LineSensorE[0] + LineSensorE[1] + LineSensorE[15] + AllLineSensorA > 0){
-            MainMotorState(1, 0, LeastSpeed);
-            MainMotorState(2, 0, LeastSpeed);
-            MainMotorState(3, 0, LeastSpeed);
-            MainMotorState(4, 0, LeastSpeed);
-          }else if((AllLineSensorB == 0 && AllLineSensorD == 0 && LineSensorE[8] + LineSensorE[7] + LineSensorE[9] + AllLineSensorC > 0) || AllLineSensor == 0){
-            MainMotorState(1, 1, LeastSpeed);
-            MainMotorState(2, 1, LeastSpeed);
-            MainMotorState(3, 1, LeastSpeed);
-            MainMotorState(4, 1, LeastSpeed);
-          }else if(90 < BallAngle && BallAngle <= 180){
-            while(90 < BallAngle && BallAngle <= 180){
-              UseAllSensor();
-              if(AllLineSensorB + AllLineSensorE == 0){
-                MotorDuty[0] = LeastSpeed;
-                MotorDuty[1] = -LeastSpeed;
-                MotorDuty[2] = LeastSpeed;
-                MotorDuty[3] = -LeastSpeed;
-                Turn();
-                UseMotorDuty();
-              }else if(AllLineSensorA + LineSensorE[0]+ LineSensorE[1]+ LineSensorE[15] > 0){
-                Brake();
-              }else{
-                MotorDuty[0] = -LeastSpeed;
-                MotorDuty[1] = -LeastSpeed;
-                MotorDuty[2] = -LeastSpeed;
-                MotorDuty[3] = -LeastSpeed;
-                Turn();
-                UseMotorDuty();
-              }
-            }
-            while(AllLineSensorD == 0 && AllLineSensor != 0){
-              UseAllSensor();
-              MotorDuty[0] = LeastSpeed;
-              MotorDuty[1] = LeastSpeed;
-              MotorDuty[2] = LeastSpeed;
-              MotorDuty[3] = LeastSpeed;
-              Turn();
-              UseMotorDuty();
-            }
-            Brake();
-            sleep_ms(250);
-          }else{
-            Brake();
-          }   
-        }else{
-          MotorDuty[0] = -DefaultSpeed1;
-          MotorDuty[1] = DefaultSpeed2;
-          MotorDuty[2] = -DefaultSpeed3;
-          MotorDuty[3] = DefaultSpeed4;
-          Zyoge();
-          Turn();
-          UseMotorDuty();
-        }
-      }
-      gpio_put(TSpin6,0);
-    }else if(AllLineSensorD + AllLineSensorE > 0 && AllLineSensorB + LineSensorE[3] + LineSensorE[4] + LineSensorE[5] == 0 && LeftWall < WallDistance){
-      gpio_put(TSpin6,1);
-      while(AllLineSensorB == 0){
-        UseBLE();
-        UseAllSensor();
-        //LineSensorE[8]を利用すれば位置ずれを治せる可能性
-        if(0 <= BallAngle && BallAngle < 180){
-          MotorDuty[0] = DefaultSpeed1;
-          MotorDuty[1] = -DefaultSpeed2;
-          MotorDuty[2] = DefaultSpeed3;
-          MotorDuty[3] = -DefaultSpeed4;
-          Zyoge();
-          Turn();
-          UseMotorDuty();
-        }else{
-          if(180 < AngleX && AngleX <= 358){
-            MainMotorState(1, 0, LeastTurnSpeed);
-            MainMotorState(2, 0, LeastTurnSpeed);
-            MainMotorState(3, 1, LeastTurnSpeed);
-            MainMotorState(4, 1, LeastTurnSpeed);
-          }else if(2 <= AngleX && AngleX < 180){
-            MainMotorState(1, 1, LeastTurnSpeed);
-            MainMotorState(2, 1, LeastTurnSpeed);
-            MainMotorState(3, 0, LeastTurnSpeed);
-            MainMotorState(4, 0, LeastTurnSpeed);
-          }else if(AllLineSensorB == 0 && AllLineSensorD == 0 && LineSensorE[0] + LineSensorE[1] + LineSensorE[15] + AllLineSensorA > 0){
-            MainMotorState(1, 0, LeastSpeed);
-            MainMotorState(2, 0, LeastSpeed);
-            MainMotorState(3, 0, LeastSpeed);
-            MainMotorState(4, 0, LeastSpeed);
-          }else if(AllLineSensorB == 0 && AllLineSensorD == 0 && LineSensorE[8] + LineSensorE[7] + LineSensorE[9] + AllLineSensorC > 0 || AllLineSensor == 0 || LineSensorE[6] + LineSensorE[10] == 1){
-            MainMotorState(1, 1, LeastSpeed);
-            MainMotorState(2, 1, LeastSpeed);
-            MainMotorState(3, 1, LeastSpeed);
-            MainMotorState(4, 1, LeastSpeed);
-          }else if(180 <= BallAngle && BallAngle < 270){
-            while(180 <= BallAngle && BallAngle < 270){
-              UseAllSensor();
-              if(AllLineSensorD + AllLineSensorE == 0){
-                MotorDuty[0] = -LeastSpeed;
-                MotorDuty[1] = LeastSpeed;
-                MotorDuty[2] = -LeastSpeed;
-                MotorDuty[3] = LeastSpeed;
-                Turn();
-                UseMotorDuty();
-              }else if(AllLineSensorA + LineSensorE[0]+ LineSensorE[1]+ LineSensorE[15] > 0){
-                Brake();
-              }else{
-                MotorDuty[0] = -LeastSpeed;
-                MotorDuty[1] = -LeastSpeed;
-                MotorDuty[2] = -LeastSpeed;
-                MotorDuty[3] = -LeastSpeed;
-                Turn();
-                UseMotorDuty();
-              }
-            }
-            while(AllLineSensorB == 0 && AllLineSensor != 0){
-              UseAllSensor();
-              MotorDuty[0] = LeastSpeed;
-              MotorDuty[1] = LeastSpeed;
-              MotorDuty[2] = LeastSpeed;
-              MotorDuty[3] = LeastSpeed;
-              Turn();
-              UseMotorDuty();
-            }
-            Brake();
-            sleep_ms(250);
-          }else{
-            Brake();
-          }
-        }
-      }
-      gpio_put(TSpin6,0);
-    }else {
-      //ボールを追いかける動き
-      if (135 < BallAngle && BallAngle < 225) {
-        //後ろにボールがある → 下がる
-        MotorDuty[0] = -100;
-        MotorDuty[1] = -100;
-        MotorDuty[2] = -100;
-        MotorDuty[3] = -100;
-        DefenceTime = 0;
-      }else if (10 < BallAngle && BallAngle <= 135) {
-        //右側にボールがある → 右側へ移動する
-        MotorDuty[0] = DefaultSpeed1;
-        MotorDuty[1] = -DefaultSpeed2;
-        MotorDuty[2] = DefaultSpeed3;
-        MotorDuty[3] = -DefaultSpeed4;
-        DefenceTime = 0;
-      } else if (225 <= BallAngle && BallAngle < 350) {
-        //左側にボールがある → 左側へ移動する
-        MotorDuty[0] = -DefaultSpeed1;
-        MotorDuty[1] = DefaultSpeed2;
-        MotorDuty[2] = -DefaultSpeed3;
-        MotorDuty[3] = DefaultSpeed4;
-        DefenceTime = 0;
-      } else if(AllLineSensor == 0){
-        
-        if(MyGoalDistance < GoalDistance){
-          //線上の線を踏めないところ
-          MotorDuty[0] = -75;
-          MotorDuty[1] = -75;
-          MotorDuty[2] = -75;
-          MotorDuty[3] = -75;
-        }else{
-          //線上にいない　→　線上に戻る
-          DefenceStart();
-        }
-      }else{
-        //正面にボールがある → 待機
-        MotorDuty[0] = 0;
-        MotorDuty[1] = 0;
-        MotorDuty[2] = 0;
-        MotorDuty[3] = 0;
-        //ボールが数秒正面にあったら押し出す
-        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-        if(DefenceTime > 2){
-          DefenceTime = 0;
-          DefenceDeltaTime = time_us_32() / 1000000.0;
-          while(DefenceTime < 1.5 && ((-60 < BallAngle && BallAngle < 60) || (300 < BallAngle && BallAngle < 420))){
-            UseBLE();
-            UseBallSensor();
-            UseGyroSensor();
-            if((-60 < BallAngle && BallAngle < -20) || (300 < BallAngle && BallAngle < 330)){
-              MotorDuty[0] = 0;
-              MotorDuty[1] = 180;
-              MotorDuty[2] = 0;
-              MotorDuty[3] = 180;
-            }else if((20 < BallAngle && BallAngle < 60) || (380 < BallAngle && BallAngle < 420)){
-              MotorDuty[0] = 180;
-              MotorDuty[1] = 0;
-              MotorDuty[2] = 180;
-              MotorDuty[3] = 0;
-            }else{
-              MotorDuty[0] = 120;
-              MotorDuty[1] = 120;
-              MotorDuty[2] = 130;
-              MotorDuty[3] = 130;
-            }
-            //正面を向くための補正
-            Turn();
-            //計算した値を出力
-            UseMotorDuty();
-            DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-            DefenceDeltaTime = time_us_32() / 1000000.0;
-          }
-          UseLineSensor();
-          DefenceStart();     
-        }
-      }
-      DefenceDeltaTime = time_us_32() / 1000000.0;
-      //正位置につくための補正
-      Zyoge();
-    }
-    //正面を向くための補正
-    Turn();
-    //計算した値を出力
-    UseMotorDuty();
+    
 }
 
 void Zyoge(){
@@ -331,29 +83,21 @@ void Zyoge(){
 void Turn(){
   if (AngleX > 180) {
     if(TurnSpeed * (360 - AngleX) / 180 < 20){
-      MotorDuty[0] += TurnSpeed * (360 - AngleX) / 180;
-      MotorDuty[1] += TurnSpeed * (360 - AngleX) / 180;
-      MotorDuty[2] -= TurnSpeed * (360 - AngleX) / 180;
-      MotorDuty[3] -= TurnSpeed * (360 - AngleX) / 180;
+      TurnDuty = TurnSpeed * (360 - AngleX) / 180;
     }else{
-      MotorDuty[0] += 20;
-      MotorDuty[1] += 20;
-      MotorDuty[2] -= 20;
-      MotorDuty[3] -= 20;
+      TurnDuty = 20;
     }
   } else {
     if(TurnSpeed * AngleX / 180 < 20){
-      MotorDuty[0] -= TurnSpeed * AngleX / 180;
-      MotorDuty[1] -= TurnSpeed * AngleX / 180;
-      MotorDuty[2] += TurnSpeed * AngleX / 180;
-      MotorDuty[3] += TurnSpeed * AngleX / 180;
+      TurnDuty = TurnSpeed * AngleX / 180 * -1;
     }else{
-      MotorDuty[0] -= 20;
-      MotorDuty[1] -= 20;
-      MotorDuty[2] += 20;
-      MotorDuty[3] += 20;
+      TurnDuty = -20;
     }
   }
+  MotorDuty[0] += TurnDuty;
+  MotorDuty[1] += TurnDuty;
+  MotorDuty[2] -= TurnDuty;
+  MotorDuty[3] -= TurnDuty;
 }
 
 void DefenceStart() {
@@ -428,4 +172,133 @@ void Return(){
     MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
     MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
   } 
+}
+
+float GetLineAngle(){
+  //Vectorは0度～360度(反時計回り)で考えます。
+  bool DoneLineSensor[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  float Vector[8] = {0,0,0,0,0,0,0,0};
+  int VectorNumber = 0;
+  //連続したラインセンサ群の取得
+  for(int i = 0;i < 16;i++){
+    if(LineSensorE[i] == 1 && DoneLineSensor[i] == false){
+      if(i == 0){
+        //LineSensor[0]だけ反時計回り側にあるセンサを考える
+        if(LineSensorE[15] == 1){
+          DoneLineSensor[15] = true;
+          if(LineSensorE[14] == 1){
+            DoneLineSensor[14] = true;
+            if(LineSensorE[13] == 1){
+              DoneLineSensor[13] = true;
+              if(LineSensorE[12] == 1){
+                DoneLineSensor[12] = true;
+                if(LineSensorE[11] == 1){
+                  DoneLineSensor[11] = true;
+                  Vector[VectorNumber] -= 56.25;
+                }else{
+                  Vector[VectorNumber] -= 45;
+                }
+              }else{
+                Vector[VectorNumber] -= 33.75;
+              }
+            }else{
+              Vector[VectorNumber] -= 22.5;
+            }
+          }else{
+            Vector[VectorNumber] -= 11.25;
+          }
+        }
+      }
+      DoneLineSensor[i] = true;
+      if(i >= 15){
+        //存在しない値を考えないようにする
+        Vector[VectorNumber] += 22.5 * i;
+        VectorNumber++;
+        continue;
+      }
+      if(LineSensorE[i + 1] == 1){
+        DoneLineSensor[i + 1] = true;
+        if(i >= 14){
+          Vector[VectorNumber] += 11.25 + 22.5 * i;
+          VectorNumber++;
+          continue;
+        }
+        if(LineSensorE[i + 2] == 1){
+          DoneLineSensor[i + 2] = true;
+          if(i >= 13){
+            Vector[VectorNumber] += 22.5 + 22.5 * i;
+            VectorNumber++;
+            continue;
+          }
+          if(LineSensorE[i + 3] == 1){
+            DoneLineSensor[i + 3] = true;
+            if(i >= 12){
+              Vector[VectorNumber] += 33.75 + 22.5 * i;
+              VectorNumber++;
+              continue;
+            }
+            if(LineSensorE[i + 4] == 1){
+              DoneLineSensor[i + 4] = true;
+              if(i >= 11){
+                Vector[VectorNumber] += 45 + 22.5 * i;
+                VectorNumber++;
+                continue;
+              }
+              if(LineSensorE[i + 5] == 1){
+                DoneLineSensor[i + 5] = true;
+                Vector[VectorNumber] += 56.25 + 22.5 * i;
+              }else{
+                Vector[VectorNumber] += 45 + 22.5 * i;
+              }
+            }else{
+              Vector[VectorNumber] += 33.75 + 22.5 * i;
+            }
+          }else{
+            Vector[VectorNumber] += 22.5 + 22.5 * i;
+          }
+        }else{
+          Vector[VectorNumber] += 11.25 + 22.5 * i;
+        }
+      }else{
+        Vector[VectorNumber] += 22.5 * i;
+      }
+      VectorNumber++;
+    }
+  }
+  //ベクトルの合成をする
+  float VectorX = 0;
+  float VectorY = 0;
+  for(int i = 0;i < VectorNumber;i++){
+    VectorX -= sin(Vector[i] / 180.0 * 3.1415);
+    VectorY += cos(Vector[i] / 180.0 * 3.1415);
+    if(SerialWatch == 'v' || SerialWatch == 'l'){
+      printf("%d : %f ",i,Vector[i]);
+    }
+  }
+  if(VectorNumber == 0){
+    VectorX = 999;
+    VectorY = 999;
+  }else{
+    VectorX /= (float)VectorNumber;
+    VectorY /= (float)VectorNumber;
+  }
+  VectorAbsoluteValue = sqrt(VectorX * VectorX + VectorY * VectorY);
+  if(SerialWatch == 'v'){
+    printf(" 向き(真右が0度) : ");
+    if(VectorX == 999 && VectorY == 999){
+      printf("%f\n",DefenceAngle);
+    }else if(VectorX == 0 && VectorY == 0){
+      printf("真ん中\n");
+    }else{
+      printf("%f\n",atan2(VectorY,VectorX));
+    }
+  }
+  //-π～πまででもとめられる。正面がπ/2になる
+  if(VectorX == 0 && VectorX == 0){
+    return -1.57;
+  }else if(VectorX == 999 && VectorY == 999){
+    return DefenceAngle;
+  }else{
+    return atan2(VectorY,VectorX);
+  }
 }

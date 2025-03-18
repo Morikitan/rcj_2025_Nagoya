@@ -24,10 +24,10 @@ int main()
     PinSetup();
     gpio_put(Bupin,1);
     
-    //CameraSetup();
+    CameraSetup();
     //GyroSetup();
-    int ReturnData = LineSetup();
-    printf("i2c : %d\n",ReturnData);
+    //int ReturnData = LineSetup();
+    //printf("i2c : %d\n",ReturnData);
     //MotorSetup();
     //Nano33IoTSetup();
     gpio_put(Bupin,0);
@@ -61,17 +61,17 @@ int main()
             Attack();
         }else if(mode == 3 || mode == 4){
             Defence();
-        }else if(mode == 7 || mode == 9){
+        }else if(mode == 7 || mode == 8){
             //ディフェンスからアタッカーに替わるときの初期化
-            float PreTime = 0;
+            float PreTime = time_us_32() / 1000000.0;
             float Time = 0;
             while(Time < 0.1){
                 UseLineSensor();
                 UseGyroSensor();
-                MotorDuty[0] = 100;
-                MotorDuty[1] = 100;
-                MotorDuty[2] = 100;
-                MotorDuty[3] = 100;
+                MotorDuty[0] = DefaultSpeed;
+                MotorDuty[1] = DefaultSpeed;
+                MotorDuty[2] = DefaultSpeed;
+                MotorDuty[3] = DefaultSpeed;
                 Turn();
                 UseMotorDuty();
                 if(AllLineSensor <= ErorrLineSensor){
@@ -79,11 +79,11 @@ int main()
                 }
                 PreTime = time_us_32() / 1000000.0;
             }
-            mode -= 4;
+            mode -= 6;
             //割り込み処理を行う
             gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
-            UseLineSensor();
+            UseCamera();
         }
     }
 }

@@ -1,9 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "motor.h"
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/pwm.h"
 #include "../config.h"
+
+float DribblerDuty = 0;
 
 void MotorSetup(){
   gpio_set_function(MMpin1_1,GPIO_FUNC_PWM);
@@ -30,10 +34,8 @@ void MainMotorState(int motor, int state, int speed) {
       analogWrite(MMpin1_1, 0);
       analogWrite(MMpin1_2, 0);
     } else if (state == 3) {
-      
-        analogWrite(MMpin1_1, speed);
-        analogWrite(MMpin1_2, speed);
-      
+      analogWrite(MMpin1_1, speed);
+      analogWrite(MMpin1_2, speed);
     }
   } else if (motor == 2) {
     if (state == 0) {
@@ -78,26 +80,42 @@ void MainMotorState(int motor, int state, int speed) {
       analogWrite(MMpin4_1, 0);
       analogWrite(MMpin4_2, 0);
     } else if (state == 3) {
-        analogWrite(MMpin4_1, speed);
-        analogWrite(MMpin4_2, speed);
+      analogWrite(MMpin4_1, speed);
+      analogWrite(MMpin4_2, speed);
     }
   }
 }
 
 void DribblerMotorState(int state,int speed){
-  if (state == 0) {
-    analogWrite(DMpin1, speed);
-    analogWrite(DMpin2, 0);
-  } else if (state == 1) {
-    analogWrite(DMpin1, 0);
-    analogWrite(DMpin2, speed);
-  } else if (state == 2) {
-    analogWrite(DMpin1, 0);
-    analogWrite(DMpin2, 0);
-  } else if (state == 3) {
-    analogWrite(DMpin1, speed);
-    analogWrite(DMpin2, speed);
-  }
+  while(fabsf(speed - DribblerDuty) < 1){
+    if(state == 0){
+      DribblerDuty += (speed - DribblerDuty) * 0.3;
+    }else if(state == 1){
+      DribblerDuty -= (speed + DribblerDuty) * 0.3;
+    }else if(state == 2){
+      DribblerDuty -= DribblerDuty * 0.3;
+    }
+
+    if(state == 3){
+      analogWrite(DMpin1, speed);
+      analogWrite(DMpin2, speed);
+      DribblerDuty = 0;
+    }else{
+      if(DribblerDuty > 255){
+        analogWrite(DMpin1, 255);
+        analogWrite(DMpin2, 0);
+      }else if(DribblerDuty >= 0){
+        analogWrite(DMpin1, (int)(DribblerDuty));
+        analogWrite(DMpin2, 0);
+      }else if(DribblerDuty > -255){
+        analogWrite(DMpin1, 0);
+        analogWrite(DMpin2, abs((int)(DribblerDuty)));
+      }else{
+        analogWrite(DMpin1, 0);
+        analogWrite(DMpin2, 255);
+      }
+    }
+  }  
 }
 
 //周波数をf[Hz]とすると

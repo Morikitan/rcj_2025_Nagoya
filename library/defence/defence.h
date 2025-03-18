@@ -9,6 +9,7 @@ void Turn();
 void Zyoge();
 void DefenceStart();
 void Return();
+float GetLineAngle();
 
 #ifdef __cplusplus
 }

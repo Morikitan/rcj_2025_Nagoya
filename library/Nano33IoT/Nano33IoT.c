@@ -11,9 +11,9 @@ void Nano33IoTSetup(){
     uart_init(uart1,115200);
     gpio_set_function(TX1pin, GPIO_FUNC_UART);  // TXピン
     gpio_set_function(RX1pin, GPIO_FUNC_UART);  // RXピン
-    //実際は消す
-    gpio_pull_up(TX1pin);
-    gpio_pull_up(RX1pin);
+    //実際は消す → 消した
+    //gpio_pull_up(TX1pin);
+    //gpio_pull_up(RX1pin);
 }
 
 void UseBallSensor(){
