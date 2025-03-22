@@ -7,6 +7,7 @@
 #include "gyro.h"
 #include "Nano33IoT.h"
 #include "camera.h"
+#include "hardware/adc.h"
 
 char SerialWatch;
 int mode;  //mode = 99で全部正転
@@ -22,9 +23,9 @@ int MyGoalX;
 int MyGoalY;
 int OpponentGoalX;
 int OpponentGoalY;
-float MyGoalAngle;
+double MyGoalAngle;
 float MyGoalDistance;
-float OpponentGoalAngle;
+double OpponentGoalAngle;
 float OpponentGoalDistance;
 int LeftWall;
 int RightWall;
@@ -45,13 +46,13 @@ void VariableSetup(){
   c カメラの値
   v ベクトル
   *******************/
-  SerialWatch = 'c';
+  SerialWatch = 'b';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
   isYellowMyGoal = 1;
 
   //mode
-  mode = 99;  //mode = 99で全部正転
+  mode = 0;  //mode = 99で全部正転
 
   //gyro sensor
   AngleX = 0; 
@@ -105,6 +106,7 @@ void PinSetup(){
   gpio_init(TSpin5);
   gpio_init(TSpin6);
   gpio_init(Bupin);
+  gpio_init(DSpin);
   gpio_set_dir(TSpin1,GPIO_IN);
   gpio_set_dir(TSpin2,GPIO_IN);
   gpio_set_dir(TSpin3,GPIO_IN);
@@ -112,6 +114,8 @@ void PinSetup(){
   gpio_set_dir(TSpin5,GPIO_IN);
   gpio_set_dir(TSpin6,GPIO_OUT);
   gpio_set_dir(Bupin,GPIO_OUT);
+  adc_gpio_init(DSpin);
+  adc_select_input(2);
   gpio_pull_down(TSpin5);
 }
 

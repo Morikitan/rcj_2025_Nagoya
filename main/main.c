@@ -19,40 +19,38 @@ uint32_t PreTime = 0;
 int main()
 {
     stdio_init_all();
-    
     VariableSetup();
     PinSetup();
-    gpio_put(Bupin,1);
-    
+    gpio_put(TSpin6,1);
     CameraSetup();
-    //GyroSetup();
-    //int ReturnData = LineSetup();
-    //printf("i2c : %d\n",ReturnData);
-    //MotorSetup();
-    //Nano33IoTSetup();
-    gpio_put(Bupin,0);
+    GyroSetup();
+    int ReturnData = LineSetup();
+    printf("i2c : %d\n",ReturnData);
+    MotorSetup();
+    Nano33IoTSetup();
+    gpio_put(TSpin6,0);
     while (true) {
         if(SerialWatch == 't'){
             printf("経過時間%fミリ秒\n",(time_us_32()-PreTime)/1000.0);
             PreTime = time_us_32();
         }
-        if(mode = 0){
-            if(gpio_get(TSpin1 == 1)){
+        if(mode == 0){
+            if(gpio_get(TSpin1) == 1){
                 mode = 1;
                 //割り込み処理を行う
                 gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&Attack);
 
                 DribblerMotorState(0,255);
-            }else if(gpio_get(TSpin2 == 1)){
+            }else if(gpio_get(TSpin2) == 1){
                 mode = 2;
                 //割り込み処理を行う
                 gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&Attack);
                 
                 DribblerMotorState(0,255);
-            }else if(gpio_get(TSpin3 == 1)){
+            }else if(gpio_get(TSpin3) == 1){
                 mode = 3;
                 DribblerMotorState(1,255);
-            }else if(gpio_get(TSpin4 == 1)){
+            }else if(gpio_get(TSpin4) == 1){
                 mode = 4;
                 DefenceStart();
                 DribblerMotorState(1,255);
@@ -84,6 +82,9 @@ int main()
             gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
             UseCamera();
+            UseBallSensor();
+            UseGyroSensor();
+            UseLineSensor();
         }
     }
 }

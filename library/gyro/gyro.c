@@ -13,12 +13,12 @@ void GyroSetup(){
     i2c_write_blocking(i2c1,BNO_ADDRESS,(uint8_t[]){0x00},1,true);
     uint8_t chip_id;
     i2c_read_blocking(i2c1, BNO_ADDRESS, &chip_id, 1, false); 
-    if (chip_id != 0xA0) {
+    /*if (chip_id != 0xA0) {
         while (true) {
             printf("bno055が見つかりません。\n");
             sleep_ms(1000);
         }
-    }
+    }*/
     uint8_t config[][3] = {
         {0x3D, 0x00, 80},
         {0x3E, 0x00, 80},

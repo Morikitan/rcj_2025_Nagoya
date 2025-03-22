@@ -87,7 +87,7 @@ void MainMotorState(int motor, int state, int speed) {
 }
 
 void DribblerMotorState(int state,int speed){
-  while(fabsf(speed - DribblerDuty) < 1){
+  while(fabsf(speed - DribblerDuty) > 1){
     if(state == 0){
       DribblerDuty += (speed - DribblerDuty) * 0.3;
     }else if(state == 1){
@@ -116,6 +116,25 @@ void DribblerMotorState(int state,int speed){
       }
     }
   }  
+  if(state == 3){
+      analogWrite(DMpin1, speed);
+      analogWrite(DMpin2, speed);
+      DribblerDuty = 0;
+    }else{
+      if(DribblerDuty > 255){
+        analogWrite(DMpin1, 255);
+        analogWrite(DMpin2, 0);
+      }else if(DribblerDuty >= 0){
+        analogWrite(DMpin1, (int)(DribblerDuty));
+        analogWrite(DMpin2, 0);
+      }else if(DribblerDuty > -255){
+        analogWrite(DMpin1, 0);
+        analogWrite(DMpin2, abs((int)(DribblerDuty)));
+      }else{
+        analogWrite(DMpin1, 0);
+        analogWrite(DMpin2, 255);
+      }
+    }
 }
 
 //周波数をf[Hz]とすると
@@ -130,7 +149,7 @@ void analogWrite(int gpio,int duty){
     gpio_set_dir(gpio,GPIO_FUNC_PWM);
     uint slice_num = pwm_gpio_to_slice_num(gpio);
     uint channel = pwm_gpio_to_channel(gpio);
-    pwm_set_clkdiv(slice_num, 488.281);
+    pwm_set_clkdiv(slice_num, 976.562);
     pwm_set_wrap(slice_num, 255);
     pwm_set_chan_level(slice_num, channel, duty);
     pwm_set_enabled(slice_num, true);

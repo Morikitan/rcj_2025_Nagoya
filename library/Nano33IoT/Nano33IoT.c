@@ -3,6 +3,7 @@
 #include "hardware/uart.h"
 #include <stdio.h>
 #include "../config.h"
+#include "hardware/adc.h"
 
 bool isBLE = false;
 bool UsedBLE = false;
@@ -17,6 +18,10 @@ void Nano33IoTSetup(){
 }
 
 void UseBallSensor(){
+    //printf("aa");
+    // uint16_t i = adc_read();
+    //printf("bb");
+    //uint16_t i;
     int kurikaesi = 0;
     while (!uart_is_writable(uart1)) {  
         kurikaesi++;
@@ -51,11 +56,13 @@ void UseBallSensor(){
         //下位6bitはBallAnlge
         if (data % 64 == 63) {
             BallAngle = -999;
-        } else {
+        }else if(data % 64 == 62){
+            BallAngle = 999;
+        }else {
             BallAngle = data % 64 * 11.25;
         }
         if (SerialWatch == 'b') {
-            printf("data : 0x%x BallDistance : %d BallAngle : %f \n",data,BallDistance,BallAngle);
+            printf("data : 0x%x BallDistance : %d BallAngle : %f\n",data,BallDistance,BallAngle);
         }
     }
 }

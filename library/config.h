@@ -32,9 +32,9 @@ extern int MyGoalX;
 extern int MyGoalY;
 extern int OpponentGoalX;
 extern int OpponentGoalY;
-extern float MyGoalAngle;
+extern double MyGoalAngle;
 extern float MyGoalDistance;
-extern float OpponentGoalAngle;
+extern double OpponentGoalAngle;
 extern float OpponentGoalDistance;
 extern int LeftWall;
 extern int RightWall;
@@ -44,8 +44,8 @@ extern int MotorDuty[4];
 extern int makao;
 
 //speed
-#define LeastTurnSpeed 40
-#define LeastSpeed 60
+#define LeastTurnSpeed 80
+#define LeastSpeed 80
 #define TurnSpeed 120
 #define DefaultSpeed 220
 #define DefaultSpeed1 100
@@ -57,18 +57,18 @@ extern int makao;
 #define SinSpeed 30
 
 //MainMotor
-#define MMpin1_1 6
-#define MMpin1_2 7
-#define MMpin2_1 10
-#define MMpin2_2 11
+#define MMpin1_1 7
+#define MMpin1_2 6
+#define MMpin2_1 11
+#define MMpin2_2 10
 #define MMpin3_1 12
 #define MMpin3_2 13
 #define MMpin4_1 14
 #define MMpin4_2 15
 
 //DribblerMotor
-#define DMpin1 16
-#define DMpin2 17
+#define DMpin1 17
+#define DMpin2 16
 
 //UART
 #define TX0pin 0

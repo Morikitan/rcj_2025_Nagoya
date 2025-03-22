@@ -9,4 +9,4 @@ target_include_directories(actions PRIVATE ../gyro)
 target_include_directories(actions PRIVATE ../Nano33IoT)
 target_include_directories(actions PRIVATE ../camera)
 
-target_link_libraries(actions pico_stdlib hardware_gpio)
+target_link_libraries(actions pico_stdlib hardware_gpio hardware_adc)
