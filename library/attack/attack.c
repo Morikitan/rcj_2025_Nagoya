@@ -57,7 +57,7 @@ void Attack(){
               break;
             }
           }
-          if(isBreak = false) Makao(false,140);
+          if(isBreak == false) Makao(false,140);
         }else if((AngleX <= 60 &&         180 + AngleX < OpponentGoalAngle && OpponentGoalAngle < 300 + AngleX) ||
          (60 < AngleX && AngleX <= 180 && AngleX - 60 < OpponentGoalAngle && OpponentGoalAngle < 180 + AngleX) ||
          (AngleX > 180 &&                 AngleX - 180 < OpponentGoalAngle && OpponentGoalAngle < AngleX - 60) ){
@@ -82,8 +82,9 @@ void Attack(){
               break;
             }
           }
-          if(isBreak = false) Makao(true,220);
+          if(isBreak == false) Makao(true,220);
         }else if(OpponentGoalDistance < 100){
+          isBreak = false;
           while (AngleX < 170 || 190 < AngleX) {
             UseLineSensor();
             UseGyroSensor();
@@ -378,7 +379,7 @@ void Makao(bool isClockWise,int TargetAngle){
   Brake();
   sleep_ms(100);
   if(isClockWise == true){
-    while (TargetAngle - 150 < AngleX && AngleX <= TargetAngle + 30) {
+    while (TargetAngle - 150 < AngleX && AngleX <= TargetAngle) {
       UseLineSensor();
       UseGyroSensor();
       MainMotorState(2, 3, 255);
@@ -422,7 +423,7 @@ void Makao(bool isClockWise,int TargetAngle){
       }
     }
   }else{
-    while (TargetAngle - 30 <= AngleX && AngleX < TargetAngle + 150) {
+    while (TargetAngle <= AngleX && AngleX < TargetAngle + 150) {
       UseLineSensor();
       UseGyroSensor();
       if((int)((TargetAngle + 120 - AngleX) * 4) > 255){

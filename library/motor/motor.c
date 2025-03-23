@@ -87,7 +87,7 @@ void MainMotorState(int motor, int state, int speed) {
 }
 
 void DribblerMotorState(int state,int speed){
-  while(fabsf(speed - DribblerDuty) > 1){
+  while(fabsf(speed - DribblerDuty) > 1 && state != 3){
     if(state == 0){
       DribblerDuty += (speed - DribblerDuty) * 0.3;
     }else if(state == 1){
@@ -95,25 +95,18 @@ void DribblerMotorState(int state,int speed){
     }else if(state == 2){
       DribblerDuty -= DribblerDuty * 0.3;
     }
-
-    if(state == 3){
-      analogWrite(DMpin1, speed);
-      analogWrite(DMpin2, speed);
-      DribblerDuty = 0;
+    if(DribblerDuty > 255){
+      analogWrite(DMpin1, 255);
+      analogWrite(DMpin2, 0);
+    }else if(DribblerDuty >= 0){
+      analogWrite(DMpin1, (int)(DribblerDuty));
+      analogWrite(DMpin2, 0);
+    }else if(DribblerDuty > -255){
+      analogWrite(DMpin1, 0);
+      analogWrite(DMpin2, abs((int)(DribblerDuty)));
     }else{
-      if(DribblerDuty > 255){
-        analogWrite(DMpin1, 255);
-        analogWrite(DMpin2, 0);
-      }else if(DribblerDuty >= 0){
-        analogWrite(DMpin1, (int)(DribblerDuty));
-        analogWrite(DMpin2, 0);
-      }else if(DribblerDuty > -255){
-        analogWrite(DMpin1, 0);
-        analogWrite(DMpin2, abs((int)(DribblerDuty)));
-      }else{
-        analogWrite(DMpin1, 0);
-        analogWrite(DMpin2, 255);
-      }
+      analogWrite(DMpin1, 0);
+      analogWrite(DMpin2, 255);
     }
   }  
   if(state == 3){
