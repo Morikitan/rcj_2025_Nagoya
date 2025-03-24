@@ -44,8 +44,8 @@ extern int MotorDuty[4];
 extern int makao;
 
 //speed
-#define LeastTurnSpeed 80
-#define LeastSpeed 80
+#define LeastTurnSpeed 85
+#define LeastSpeed 100
 #define TurnSpeed 120
 #define DefaultSpeed 220
 #define DefaultSpeed1 100
@@ -59,10 +59,10 @@ extern int makao;
 //MainMotor
 #define MMpin1_1 7
 #define MMpin1_2 6
-#define MMpin2_1 11
-#define MMpin2_2 10
-#define MMpin3_1 12
-#define MMpin3_2 13
+#define MMpin2_1 13
+#define MMpin2_2 12
+#define MMpin3_1 10
+#define MMpin3_2 11
 #define MMpin4_1 14
 #define MMpin4_2 15
 

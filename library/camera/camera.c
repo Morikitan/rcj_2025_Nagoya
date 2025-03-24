@@ -7,7 +7,8 @@
 
 int CameraDataNumber = 1;
 int HowManyData = 0;
-uint8_t CameraData[] = {0,0,0,0,0,0};
+uint8_t CameraData1[] = {0,0,0,0,0,0,0};
+uint8_t CameraData[] = {0,0,0,0,0,0,0};
 uint8_t data = 0;
 
 void CameraSetup(){
@@ -20,34 +21,45 @@ void CameraSetup(){
 void UseCamera(){
     //HowManyData = 0;
     while(uart_is_readable(uart0)){
-        uart_read_blocking(uart0,CameraData,6);
-        printf("%u %u %u %u %u %u\n",CameraData[0],CameraData[1],CameraData[2],CameraData[3],CameraData[4],CameraData[5]);
+        uart_read_blocking(uart0,CameraData1,7);
+        if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u",CameraData1[0],CameraData1[1],CameraData1[2],CameraData1[3],CameraData1[4],CameraData1[5],CameraData1[6]);
     }
-
+    for(int i = 0;i < 7;i++){
+        if(CameraData1[i] == 2){
+            for(int j = 0;j < 7;j++){
+                if(i + j >= 7){
+                    CameraData[j] = CameraData1[i + j - 7];
+                }else{
+                    CameraData[j] = CameraData1[i + j];
+                }
+            }
+        }
+    }
+    if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u\n",CameraData[0],CameraData[1],CameraData[2],CameraData[3],CameraData[4],CameraData[5],CameraData[6]);
     if(isYellowMyGoal == 1){
-        if(CameraData[0] == 255)MyGoalX = 999;
-        else MyGoalX = (int)CameraData[0];
-        if(CameraData[1] == 255)MyGoalY = 999;
-        else MyGoalY = (int)CameraData[1];
-        if(CameraData[2] == 255)OpponentGoalX = 999;
-        else OpponentGoalX = (int)CameraData[2];
-        if(CameraData[3] == 255)OpponentGoalY = 999;
-        else OpponentGoalY = (int)CameraData[3];
+        if(CameraData[1] == 255)MyGoalX = 999;
+        else MyGoalX = (int)CameraData[1];
+        if(CameraData[2] == 255)MyGoalY = 999;
+        else MyGoalY = (int)CameraData[2];
+        if(CameraData[3] == 255)OpponentGoalX = 999;
+        else OpponentGoalX = (int)CameraData[3];
+        if(CameraData[4] == 255)OpponentGoalY = 999;
+        else OpponentGoalY = (int)CameraData[4];
     }else{
-        if(CameraData[0] == 255)OpponentGoalX = 999;
-        else OpponentGoalX = CameraData[0];
-        if(CameraData[1] == 255)OpponentGoalY = 999;
-        else OpponentGoalY = CameraData[1];
-        if(CameraData[2] == 255)MyGoalX = 999;
-        else MyGoalX = CameraData[2];
-        if(CameraData[3] == 255)MyGoalY = 999;
-        else MyGoalY = CameraData[3];
+        if(CameraData[1] == 255)OpponentGoalX = 999;
+        else OpponentGoalX = CameraData[1];
+        if(CameraData[2] == 255)OpponentGoalY = 999;
+        else OpponentGoalY = CameraData[2];
+        if(CameraData[3] == 255)MyGoalX = 999;
+        else MyGoalX = CameraData[3];
+        if(CameraData[4] == 255)MyGoalY = 999;
+        else MyGoalY = CameraData[4];
     }
 
-    if(CameraData[4] == 255)LeftWall = 999;
-    else LeftWall = 128 - (int)CameraData[4];
-    if(CameraData[5] == 255)RightWall = 999;
-    else RightWall = (int)CameraData[5] - 128;
+    if(CameraData[5] == 255)LeftWall = 999;
+    else LeftWall = 128 - (int)CameraData[5];
+    if(CameraData[6] == 255)RightWall = 999;
+    else RightWall = (int)CameraData[6] - 128;
 
     if(MyGoalX == 999 || MyGoalY == 999){
         MyGoalAngle = 999.0;

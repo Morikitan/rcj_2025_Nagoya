@@ -18,10 +18,6 @@ void Nano33IoTSetup(){
 }
 
 void UseBallSensor(){
-    //printf("aa");
-    // uint16_t i = adc_read();
-    //printf("bb");
-    //uint16_t i;
     int kurikaesi = 0;
     while (!uart_is_writable(uart1)) {  
         kurikaesi++;
@@ -68,7 +64,7 @@ void UseBallSensor(){
 }
 
 void UseBLE(){
-    if(isBLE = true){
+    if(isBLE == true){
         if(UsedBLE == false || !(mode == 1 || mode == 2)){
             int kurikaesi = 0;
             while (!uart_is_writable(uart1)) {  

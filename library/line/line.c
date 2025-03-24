@@ -2,6 +2,7 @@
 #include "line.h"
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "hardware/gpio.h"
 #include "../config.h"
 #include "actions.h"
 
@@ -27,7 +28,7 @@ void UseLineSensor(){
     bool isTimeOut = false;
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_1,(uint8_t[]){0x12},1,true);
     while(i2c_get_read_available(i2c0)){
-        if(time_us_32() / 1000000.0 - I2CTime > 0.2){
+        if(time_us_32() / 1000000.0 - I2CTime > 0.1){
             isTimeOut = true;
             break;
         }
@@ -54,7 +55,7 @@ void UseLineSensor(){
     I2CTime = time_us_32() / 1000000.0;
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x12},1,true);
     while(i2c_get_read_available(i2c0)){
-        if(time_us_32() / 1000000.0 - I2CTime > 0.2){
+        if(time_us_32() / 1000000.0 - I2CTime > 0.1){
             isTimeOut = true;
             break;
         }

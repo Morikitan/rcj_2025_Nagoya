@@ -46,7 +46,7 @@ void VariableSetup(){
   c カメラの値
   v ベクトル
   *******************/
-  SerialWatch = 'b';
+  SerialWatch = 'c';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
   isYellowMyGoal = 1;

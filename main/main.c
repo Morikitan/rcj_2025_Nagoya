@@ -22,6 +22,7 @@ int main()
     VariableSetup();
     PinSetup();
     gpio_put(TSpin6,1);
+    sleep_ms(1000);
     CameraSetup();
     GyroSetup();
     int ReturnData = LineSetup();
@@ -81,10 +82,17 @@ int main()
             //割り込み処理を行う
             gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
-            UseCamera();
-            UseBallSensor();
-            UseGyroSensor();
-            UseLineSensor();
+            DribblerMotorState(0,255);
+            sleep_ms(5000);
+            MainMotorState(1,0,255);
+            MainMotorState(2,0,255);
+            MainMotorState(3,1,255);
+            MainMotorState(4,1,255);
+            sleep_ms(1000);
+            MainMotorState(1,2,255);
+            MainMotorState(2,2,255);
+            MainMotorState(3,2,255);
+            MainMotorState(4,2,255);
         }
     }
 }

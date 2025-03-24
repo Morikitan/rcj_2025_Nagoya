@@ -2,6 +2,7 @@
 #include "../config.h"
 #include "gyro.h"
 #include "hardware/i2c.h"
+#include "hardware/gpio.h"
 #include "pico/stdlib.h"
 
 #define BNO_ADDRESS 0x28
@@ -13,12 +14,12 @@ void GyroSetup(){
     i2c_write_blocking(i2c1,BNO_ADDRESS,(uint8_t[]){0x00},1,true);
     uint8_t chip_id;
     i2c_read_blocking(i2c1, BNO_ADDRESS, &chip_id, 1, false); 
-    /*if (chip_id != 0xA0) {
+    if (chip_id != 0xA0) {
         while (true) {
             printf("bno055が見つかりません。\n");
             sleep_ms(1000);
         }
-    }*/
+    }
     uint8_t config[][3] = {
         {0x3D, 0x00, 80},
         {0x3E, 0x00, 80},
@@ -39,17 +40,43 @@ void GyroSetup(){
 
 void UseGyroSensor(){
     uint8_t buffer[2];
-    i2c_write_blocking(i2c1, BNO_ADDRESS, (uint8_t[]){0x1A}, 1, true); 
-    i2c_read_blocking(i2c1, BNO_ADDRESS, buffer, 2, false); 
-    AngleX = ((buffer[1] << 8) | buffer[0]) / 16.0;
-    if(SerialWatch == 'a'){
-        printf("AngleX : %f\n",AngleX);
+    bool isBreak = false;
+    float i2cTime = time_us_32() / 1000000.0;
+    while(i2c_get_write_available(i2c1) == false){
+        if(time_us_32() / 1000000.0 - i2cTime > 0.1){
+            isBreak = true;
+            break;
+        }
     }
-    if(mode == 2 || mode == 4 || mode == 8){
-        if (AngleX > 180){
-            AngleX -= 180;
+    if(isBreak == true){
+        
+    }else{   
+        i2c_write_blocking(i2c1, BNO_ADDRESS, (uint8_t[]){0x1A}, 1, true);
+        isBreak = false; 
+        i2cTime = time_us_32() / 1000000.0;
+        /*while(i2c_get_read_available(i2c1) == 0){
+            if(time_us_32() / 1000000.0 - i2cTime > 0.1){
+                isBreak = true;
+                break;
+            }
+        }*/
+        if(isBreak == true){
+            printf("ジャイロ死亡\n");
+            gpio_put(TSpin6,1);
         }else{
-            AngleX += 180;
+            gpio_put(TSpin6,0);
+            i2c_read_blocking(i2c1, BNO_ADDRESS, buffer, 2, false); 
+            AngleX = ((buffer[1] << 8) | buffer[0]) / 16.0;
+            if(SerialWatch == 'a'){
+                printf("AngleX : %f\n",AngleX);
+            }
+            if(mode == 2 || mode == 4 || mode == 8){
+                if (AngleX > 180){
+                    AngleX -= 180;
+                }else{
+                    AngleX += 180;
+                }
+            }
         }
     }
 }
