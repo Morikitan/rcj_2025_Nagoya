@@ -60,7 +60,7 @@ void VariableSetup(){
   AngleZ = 0;
 
   //line sensor
-  ErorrLineSensor = 0;
+  ErorrLineSensor = 2;
 
   //camera
   MyGoalX = 0;
@@ -114,8 +114,6 @@ void PinSetup(){
   gpio_set_dir(TSpin5,GPIO_IN);
   gpio_set_dir(TSpin6,GPIO_OUT);
   gpio_set_dir(Bupin,GPIO_OUT);
-  adc_gpio_init(DSpin);
-  adc_select_input(2);
   gpio_pull_down(TSpin5);
 }
 

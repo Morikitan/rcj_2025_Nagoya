@@ -10,6 +10,7 @@ void Zyoge();
 void DefenceStart();
 void Return();
 float GetLineAngle();
+void LineTrace();
 
 #ifdef __cplusplus
 }

@@ -21,7 +21,7 @@ int main()
     stdio_init_all();
     VariableSetup();
     PinSetup();
-    gpio_put(TSpin6,1);
+    gpio_put(Bupin,1);
     sleep_ms(1000);
     CameraSetup();
     GyroSetup();
@@ -29,7 +29,7 @@ int main()
     printf("i2c : %d\n",ReturnData);
     MotorSetup();
     Nano33IoTSetup();
-    gpio_put(TSpin6,0);
+    gpio_put(Bupin,0);
     while (true) {
         if(SerialWatch == 't'){
             printf("経過時間%fミリ秒\n",(time_us_32()-PreTime)/1000.0);

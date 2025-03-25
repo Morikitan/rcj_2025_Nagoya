@@ -87,7 +87,12 @@ void MainMotorState(int motor, int state, int speed) {
 }
 
 void DribblerMotorState(int state,int speed){
-  while(fabsf(speed - DribblerDuty) > 1 && state != 3){
+  if(state == 0 && DribblerDuty < 0){
+    DribblerDuty = 0;
+  }else if(state == 1 && DribblerDuty > 0){
+    DribblerDuty = 0;
+  }
+  while(fabsf(speed - fabsf(DribblerDuty)) > 1 && state != 3){
     if(state == 0){
       DribblerDuty += (speed - DribblerDuty) * 0.3;
     }else if(state == 1){

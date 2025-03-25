@@ -80,12 +80,12 @@ void UseLineSensor(){
     AllLineSensorB = LineSensorABCD[4] + LineSensorABCD[5] + LineSensorABCD[6] + LineSensorABCD[7];
     AllLineSensorC = LineSensorABCD[8] + LineSensorABCD[9] + LineSensorABCD[10] + LineSensorABCD[11];
     AllLineSensorD = LineSensorABCD[12] + LineSensorABCD[13] + LineSensorABCD[14] + LineSensorABCD[15];
+    if(AllLineSensorA + AllLineSensorB + AllLineSensorC + AllLineSensorD == 16){
+        AllLineSensorA = 0;AllLineSensorB = 0;AllLineSensorC = 0;AllLineSensorD = 0;
+    }
     AllLineSensorE = LineSensorE[0] + LineSensorE[1] + LineSensorE[2] + LineSensorE[3] + LineSensorE[4] + LineSensorE[5] + LineSensorE[6] + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] + LineSensorE[10] + LineSensorE[11] + LineSensorE[12] + LineSensorE[13] + LineSensorE[14] + LineSensorE[15];
+    if(AllLineSensorE > 12){
+        AllLineSensorE = 0;
+    }
     AllLineSensor = AllLineSensorA + AllLineSensorB + AllLineSensorC + AllLineSensorD + AllLineSensorE;
-    /*if(AllLineSensorE > 12){
-        Brake();
-        printf("ラインセンサに異常が起きています");
-        gpio_put(Bupin,1);
-        while(1){}
-    }*/
 }

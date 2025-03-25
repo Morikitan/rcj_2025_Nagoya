@@ -4,6 +4,7 @@
 #include "line.h"
 #include "Nano33IoT.h"
 #include "gyro.h"
+#include "camera.h"
 #include "../config.h"
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
@@ -20,7 +21,163 @@ float DefenceAngle;
 #define GoalDistance 70 //線上にいるときの自分のゴールの距離
 
 void Defence(){
-    
+    //ディフェンダー
+    UseAllSensor();
+    if (AllLineSensorA > 0 && AllLineSensorE == 0) {
+      //A群が反応 → 上がる
+      DefenceTime = 0;
+      DefenceDeltaTime = time_us_32() / 1000000.0;
+      while (AllLineSensorE == 0 && AllLineSensorC == 0 && DefenceTime < 0.5) {
+        UseBLE();
+        UseLineSensor();
+        MainMotorState(1, 0, LargeDefaultSpeed1);
+        MainMotorState(2, 0, LargeDefaultSpeed2);
+        MainMotorState(3, 0, LargeDefaultSpeed3);
+        MainMotorState(4, 0, LargeDefaultSpeed4);
+        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
+        DefenceDeltaTime = time_us_32() / 1000000.0;
+        if (SerialWatch == 'd') {
+          printf("A群\n");
+        }
+      }
+    } else if (AllLineSensorC > 0 && AllLineSensorE == 0) {
+      //C群が反応 → 下がる
+      DefenceTime = 0;
+      DefenceDeltaTime = time_us_32() / 1000000.0;
+      while (AllLineSensorE == 0 && AllLineSensorA == 0 && DefenceTime < 0.5) {
+        UseBLE();
+        UseLineSensor();
+        MainMotorState(1, 1, LeastSpeed);
+        MainMotorState(2, 1, LeastSpeed);
+        MainMotorState(3, 1, LeastSpeed);
+        MainMotorState(4, 1, LeastSpeed);
+        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
+        DefenceDeltaTime = time_us_32() / 1000000.0;
+        if (SerialWatch == 'd') {
+          printf("C群\n");
+        }
+      }
+    }else {
+      DefenceAngle = GetLineAngle();
+      //ボールを追いかける動き
+      
+      if(AllLineSensor == 0){
+        DefenceStart();
+        DefenceTime = 0;
+      }else if(MyGoalAngle > 260){
+        while(MyGoalAngle > 240){
+          UseCamera();
+          UseGyroSensor();
+          MotorDuty[0] = DefaultSpeed1;
+          MotorDuty[1] = DefaultSpeed2;
+          MotorDuty[2] = DefaultSpeed3;
+          MotorDuty[3] = DefaultSpeed4;
+          Turn();
+          UseMotorDuty();
+        }
+        Brake();
+        DefenceAngle = 1.57;
+        VectorAbsoluteValue = 0;
+        sleep_ms(100);
+      }else if(MyGoalAngle < 100){
+        while(MyGoalAngle < 120){
+          UseCamera();
+          UseGyroSensor();
+          MotorDuty[0] = DefaultSpeed1;
+          MotorDuty[1] = DefaultSpeed2;
+          MotorDuty[2] = DefaultSpeed3;
+          MotorDuty[3] = DefaultSpeed4;
+          Turn();
+          UseMotorDuty();
+        }
+        Brake();
+        DefenceAngle = 1.57;
+        VectorAbsoluteValue = 0;
+        sleep_ms(100);
+      }else if ((10 < BallAngle && BallAngle <= 135 && MyGoalAngle < 210 && ((-2.47 < DefenceAngle && DefenceAngle < -0.67) || (0.67 < DefenceAngle && DefenceAngle < 2.47))) || MyGoalAngle < 150 || DefenceAngle <= -2.47 || 2.47 <= DefenceAngle) {
+        //右側にボールがある → 右側へ移動する 2π/3 と -π/3
+        if(DefenceAngle > 0){
+          MotorDuty[0] = DefaultSpeed1 * (cos(DefenceAngle - 1.57) + sin(DefenceAngle - 1.57));
+          MotorDuty[1] = DefaultSpeed2 * (-cos(DefenceAngle - 1.57) + sin(DefenceAngle - 1.57));
+          MotorDuty[2] = DefaultSpeed3 * (cos(DefenceAngle - 1.57) + sin(DefenceAngle - 1.57));
+          MotorDuty[3] = DefaultSpeed4 * (-cos(DefenceAngle - 1.57) + sin(DefenceAngle - 1.57));
+        }else{
+          MotorDuty[0] = DefaultSpeed1 * (cos(DefenceAngle + 1.57) + sin(DefenceAngle + 1.57));
+          MotorDuty[1] = DefaultSpeed2 * (-cos(DefenceAngle + 1.57) + sin(DefenceAngle + 1.57));
+          MotorDuty[2] = DefaultSpeed3 * (cos(DefenceAngle + 1.57) + sin(DefenceAngle + 1.57));
+          MotorDuty[3] = DefaultSpeed4 * (-cos(DefenceAngle + 1.57) + sin(DefenceAngle + 1.57));
+        }
+        DefenceTime = 0;
+      } else if ((225 <= BallAngle && BallAngle < 350 && MyGoalAngle > 150) || MyGoalAngle > 210 || (-0.67 <= DefenceAngle && DefenceAngle <= 0.67) ){
+        //左側にボールがある → 左側へ移動する
+        if(DefenceAngle > 0){
+          MotorDuty[0] = DefaultSpeed1 * (-cos(DefenceAngle - 1.57) - sin(DefenceAngle - 1.57));
+          MotorDuty[1] = DefaultSpeed2 * (cos(DefenceAngle - 1.57) - sin(DefenceAngle - 1.57));
+          MotorDuty[2] = DefaultSpeed3 * (-cos(DefenceAngle - 1.57) - sin(DefenceAngle - 1.57));
+          MotorDuty[3] = DefaultSpeed4 * (cos(DefenceAngle - 1.57) - sin(DefenceAngle - 1.57));
+        }else{
+          MotorDuty[0] = DefaultSpeed1 * (-cos(DefenceAngle + 1.57) - sin(DefenceAngle + 1.57));
+          MotorDuty[1] = DefaultSpeed2 * (cos(DefenceAngle + 1.57) - sin(DefenceAngle + 1.57));
+          MotorDuty[2] = DefaultSpeed3 * (-cos(DefenceAngle + 1.57) - sin(DefenceAngle + 1.57));
+          MotorDuty[3] = DefaultSpeed4 * (cos(DefenceAngle + 1.57) - sin(DefenceAngle + 1.57));
+        }
+        DefenceTime = 0;
+      }else{
+        //正面にボールがある → 待機
+        MotorDuty[0] = 0;
+        MotorDuty[1] = 0;
+        MotorDuty[2] = 0;
+        MotorDuty[3] = 0;
+        //ボールが数秒正面にあったら押し出す
+        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
+        if(DefenceTime > 2){
+          DefenceTime = 0;
+          DefenceDeltaTime = time_us_32() / 1000000.0;
+          while(DefenceTime < 1.3 && ((-60 < BallAngle && BallAngle < 60) || (300 < BallAngle && BallAngle < 420))){
+            UseBLE();
+            UseBallSensor();
+            UseGyroSensor();
+            if((-60 < BallAngle && BallAngle < -20) || (300 < BallAngle && BallAngle < 330)){
+              MotorDuty[0] = 0;
+              MotorDuty[1] = 180;
+              MotorDuty[2] = 0;
+              MotorDuty[3] = 180;
+            }else if((20 < BallAngle && BallAngle < 60) || (380 < BallAngle && BallAngle < 420)){
+              MotorDuty[0] = 180;
+              MotorDuty[1] = 0;
+              MotorDuty[2] = 180;
+              MotorDuty[3] = 0;
+            }else{
+              MotorDuty[0] = DefaultSpeed1;
+              MotorDuty[1] = DefaultSpeed2;
+              MotorDuty[2] = DefaultSpeed3;
+              MotorDuty[3] = DefaultSpeed4;
+            }
+            //正面を向くための補正
+            Turn();
+            //計算した値を出力
+            UseMotorDuty();
+            DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
+            DefenceDeltaTime = time_us_32() / 1000000.0;
+          }
+          DefenceStart();
+        }
+        LineTrace();
+      }
+      DefenceDeltaTime = time_us_32() / 1000000.0;
+      //正位置につくための補正
+    }
+
+    LineTrace();
+    //正面を向くための補正
+    Turn();
+    if (SerialWatch == 'd') {
+      printf("BaAngle : %f DeAngle : %f MGAngle : %fTurnDuty : %f motor1 : %d m2 : %d m3 : %d m4 : %d 回転 : %d 縦 : %d 横 : %d\n"
+      ,BallAngle,DefenceAngle,MyGoalAngle,TurnDuty,MotorDuty[0],MotorDuty[1],MotorDuty[2],MotorDuty[3],MotorDuty[0] + MotorDuty[1] - MotorDuty[2] - MotorDuty[3]
+      ,MotorDuty[0] + MotorDuty[1] + MotorDuty[2] + MotorDuty[3],MotorDuty[0] - MotorDuty[1] + MotorDuty[2] - MotorDuty[3]);
+    }
+    //計算した値を出力
+    UseMotorDuty();
 }
 
 void Zyoge(){
@@ -104,15 +261,25 @@ void DefenceStart() {
   UseGyroSensor();
   UseBallSensor();
   while (10 < AngleX && AngleX < 350) {
-    UseAllSensor();
-    MainMotorState(1, 0, LeastTurnSpeed);
-    MainMotorState(2, 0, LeastTurnSpeed);
-    MainMotorState(3, 1, LeastTurnSpeed);
-    MainMotorState(4, 1, LeastTurnSpeed);
+    UseGyroSensor();
+    if(AngleX > 180){
+      MainMotorState(1, 0, LeastTurnSpeed);
+      MainMotorState(2, 0, LeastTurnSpeed);
+      MainMotorState(3, 1, LeastTurnSpeed);
+      MainMotorState(4, 1, LeastTurnSpeed);
+    }else{
+      MainMotorState(1, 1, LeastTurnSpeed);
+      MainMotorState(2, 1, LeastTurnSpeed);
+      MainMotorState(3, 0, LeastTurnSpeed);
+      MainMotorState(4, 0, LeastTurnSpeed);
+    }
   }
   UseLineSensor();
-  while (AllLineSensorC == 0 && AllLineSensorE == 0) {
-    UseAllSensor();
+  while ((AllLineSensorC < 2 && AllLineSensorE < 2) || MyGoalDistance == 999) {
+    UseLineSensor();
+    UseGyroSensor();
+    UseCamera();
+    //自ゴールに向かって進む
     Return();
     //正面を向くための補正
     Turn();
@@ -122,24 +289,28 @@ void DefenceStart() {
   //位置の微調整
   DefenceTime = 0;
   DefenceDeltaTime = time_us_32() / 1000000.0;
+  gpio_put(TSpin6,1);
   while(AllLineSensorB == 0 || AllLineSensorD == 0){
-    UseAllSensor();
+    UseLineSensor();
+    UseGyroSensor();
+    UseCamera();
     if(AllLineSensorC + LineSensorE[6] + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] + LineSensorE[10] > 0 || DefenceTime > 1.0){
-      MotorDuty[0] = -50;
-      MotorDuty[1] = -50;
-      MotorDuty[2] = -50;
-      MotorDuty[3] = -50;
+      MotorDuty[0] = -LeastSpeed;
+      MotorDuty[1] = -LeastSpeed;
+      MotorDuty[2] = -LeastSpeed;
+      MotorDuty[3] = -LeastSpeed;
     }else{
-      MotorDuty[0] = 50;
-      MotorDuty[1] = 50;
-      MotorDuty[2] = 50;
-      MotorDuty[3] = 50;
+      MotorDuty[0] = LeastSpeed;
+      MotorDuty[1] = LeastSpeed;
+      MotorDuty[2] = LeastSpeed;
+      MotorDuty[3] = LeastSpeed;
     }
     Turn();
     UseMotorDuty();
     DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
     DefenceDeltaTime = time_us_32() / 1000000.0;
   }
+  gpio_put(TSpin6,0);
   Brake();
   sleep_ms(250);
   DefenceTime = 0;
@@ -147,31 +318,32 @@ void DefenceStart() {
 
 void Return(){
   if(MyGoalDistance == 999){
-    if(OpponentGoalDistance == 999){
+    gpio_put(TSpin6,1);
       //壁を利用する
       if(RightWall < LeftWall){
-        MotorDuty[0] = (int)(DefaultSpeed * cos((210 * -1 + 45) * 3.1415 / 180));
-        MotorDuty[1] = (int)(DefaultSpeed * sin((210 * -1 + 45) * 3.1415 / 180));
-        MotorDuty[2] = (int)(DefaultSpeed * cos((210 * -1 + 45) * 3.1415 / 180));
-        MotorDuty[3] = (int)(DefaultSpeed * sin((210 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[0] = (int)(DefaultSpeed * cos((-150) * 3.1415 / 180));
+        MotorDuty[1] = (int)(DefaultSpeed * sin((-150) * 3.1415 / 180));
+        MotorDuty[2] = (int)(DefaultSpeed * cos((-150) * 3.1415 / 180));
+        MotorDuty[3] = (int)(DefaultSpeed * sin((-150) * 3.1415 / 180));
       }else{
-        MotorDuty[0] = (int)(DefaultSpeed * cos((150 * -1 + 45) * 3.1415 / 180));
-        MotorDuty[1] = (int)(DefaultSpeed * sin((150 * -1 + 45) * 3.1415 / 180));
-        MotorDuty[2] = (int)(DefaultSpeed * cos((150 * -1 + 45) * 3.1415 / 180));
-        MotorDuty[3] = (int)(DefaultSpeed * sin((150 * -1 + 45) * 3.1415 / 180));
+        MotorDuty[0] = (int)(DefaultSpeed * cos((-120) * 3.1415 / 180));
+        MotorDuty[1] = (int)(DefaultSpeed * sin((-120) * 3.1415 / 180));
+        MotorDuty[2] = (int)(DefaultSpeed * cos((-120) * 3.1415 / 180));
+        MotorDuty[3] = (int)(DefaultSpeed * sin((-120) * 3.1415 / 180));
       }
-    }else{
-      MotorDuty[0] = (int)(DefaultSpeed * cos(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
-      MotorDuty[1] = (int)(DefaultSpeed * sin(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
-      MotorDuty[2] = (int)(DefaultSpeed * cos(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
-      MotorDuty[3] = (int)(DefaultSpeed * sin(((180 - OpponentGoalAngle) * -1 + 45) * 3.1415 / 180));
-    }
-  }else{
+  }else if(MyGoalDistance > 77){
+    gpio_put(TSpin6,0);
     MotorDuty[0] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
     MotorDuty[1] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
     MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
     MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
-  } 
+  }else{
+    gpio_put(TSpin6,0);
+    MotorDuty[0] = DefaultSpeed1;
+    MotorDuty[1] = DefaultSpeed1;
+    MotorDuty[2] = DefaultSpeed1;
+    MotorDuty[3] = DefaultSpeed1;
+  }
 }
 
 float GetLineAngle(){
@@ -301,4 +473,13 @@ float GetLineAngle(){
   }else{
     return atan2(VectorY,VectorX);
   }
+}
+
+void LineTrace(){
+  float DutyX = cos(DefenceAngle) * VectorSpeed * VectorAbsoluteValue;
+  float DutyY = sin(DefenceAngle) * VectorSpeed * VectorAbsoluteValue;
+  MotorDuty[0] += (int)(DutyX + DutyY);
+  MotorDuty[1] += (int)(-DutyX + DutyY);
+  MotorDuty[2] += (int)(DutyX + DutyY);
+  MotorDuty[3] += (int)(-DutyX + DutyY);
 }

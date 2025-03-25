@@ -8,5 +8,6 @@ target_include_directories(defence PRIVATE ../actions)
 target_include_directories(defence PRIVATE ../gyro)
 target_include_directories(defence PRIVATE ../Nano33IoT)
 target_include_directories(defence PRIVATE ../line)
+target_include_directories(defence PRIVATE ../camera)
 
 target_link_libraries(defence pico_stdlib hardware_pwm hardware_gpio)

@@ -38,28 +38,28 @@ void UseCamera(){
     if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u\n",CameraData[0],CameraData[1],CameraData[2],CameraData[3],CameraData[4],CameraData[5],CameraData[6]);
     if(isYellowMyGoal == 1){
         if(CameraData[1] == 255)MyGoalX = 999;
-        else MyGoalX = (int)CameraData[1];
+        else MyGoalX = 255 - (int)CameraData[1];
         if(CameraData[2] == 255)MyGoalY = 999;
         else MyGoalY = (int)CameraData[2];
         if(CameraData[3] == 255)OpponentGoalX = 999;
-        else OpponentGoalX = (int)CameraData[3];
+        else OpponentGoalX = 255 - (int)CameraData[3];
         if(CameraData[4] == 255)OpponentGoalY = 999;
         else OpponentGoalY = (int)CameraData[4];
     }else{
         if(CameraData[1] == 255)OpponentGoalX = 999;
-        else OpponentGoalX = CameraData[1];
+        else OpponentGoalX = 255 - CameraData[1];
         if(CameraData[2] == 255)OpponentGoalY = 999;
         else OpponentGoalY = CameraData[2];
         if(CameraData[3] == 255)MyGoalX = 999;
-        else MyGoalX = CameraData[3];
+        else MyGoalX = 255 - CameraData[3];
         if(CameraData[4] == 255)MyGoalY = 999;
         else MyGoalY = CameraData[4];
     }
 
-    if(CameraData[5] == 255)LeftWall = 999;
-    else LeftWall = 128 - (int)CameraData[5];
-    if(CameraData[6] == 255)RightWall = 999;
-    else RightWall = (int)CameraData[6] - 128;
+    if(CameraData[5] == 255)RightWall = 999;
+    else RightWall = 128 - (int)CameraData[5];
+    if(CameraData[6] == 255)LeftWall = 999;
+    else LeftWall = (int)CameraData[6] - 128;
 
     if(MyGoalX == 999 || MyGoalY == 999){
         MyGoalAngle = 999.0;
