@@ -64,7 +64,7 @@ int main()
             //ディフェンスからアタッカーに替わるときの初期化
             float PreTime = time_us_32() / 1000000.0;
             float Time = 0;
-            while(Time < 0.3){
+            while(Time < 0.75){
                 UseLineSensor();
                 UseGyroSensor();
                 MotorDuty[0] = DefaultSpeed1;
