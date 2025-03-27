@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include "../config.h"
 #include "hardware/adc.h"
+#include "actions.h"
 
-bool isBLE = false;
+bool isBLE = true;
 bool UsedBLE = false;
 
 void Nano33IoTSetup(){
@@ -65,7 +66,7 @@ void UseBallSensor(){
 
 void UseBLE(){
     if(isBLE == true){
-        if(UsedBLE == false || !(mode == 1 || mode == 2)){
+        if(UsedBLE == false || !(mode == 1 || mode == 2 || mode == 9 || mode == 10)){
             int kurikaesi = 0;
             while (!uart_is_writable(uart1)) {  
                 kurikaesi++;
@@ -77,7 +78,6 @@ void UseBLE(){
                     }
                 }
             }
-            //BallSensorの値を要求
             if(mode == 1 || mode == 2 || mode == 99){
                 uart_putc(uart1,0x02); 
             }else{
@@ -129,7 +129,21 @@ void UseBLE(){
                             printf("アタッカーに替われました。\n");
                         }
                     }
-                }  
+                }else if(data == 0x06){
+                    //待機する
+                    while(!uart_is_readable(uart1)){
+                        Brake();
+                    }
+
+                    uart_read_blocking(uart1,&data,1);
+
+                    if(data == 0x01){
+                        UsedBLE = true;
+                        if(SerialWatch == 'B'){
+                            printf("BLEは正常です。\n");
+                        }
+                    }
+                } 
             }
         }
     }   

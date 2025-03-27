@@ -22,7 +22,7 @@ void UseCamera(){
     //HowManyData = 0;
     while(uart_is_readable(uart0)){
         uart_read_blocking(uart0,CameraData1,7);
-        if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u",CameraData1[0],CameraData1[1],CameraData1[2],CameraData1[3],CameraData1[4],CameraData1[5],CameraData1[6]);
+        //if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u",CameraData1[0],CameraData1[1],CameraData1[2],CameraData1[3],CameraData1[4],CameraData1[5],CameraData1[6]);
     }
     for(int i = 0;i < 7;i++){
         if(CameraData1[i] == 2){
@@ -35,7 +35,7 @@ void UseCamera(){
             }
         }
     }
-    if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u\n",CameraData[0],CameraData[1],CameraData[2],CameraData[3],CameraData[4],CameraData[5],CameraData[6]);
+    //if(SerialWatch == 'c')printf("%u %u %u %u %u %u %u\n",CameraData[0],CameraData[1],CameraData[2],CameraData[3],CameraData[4],CameraData[5],CameraData[6]);
     if(isYellowMyGoal == 1){
         if(CameraData[1] == 255)MyGoalX = 999;
         else MyGoalX = 255 - (int)CameraData[1];

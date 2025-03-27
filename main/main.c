@@ -50,13 +50,13 @@ int main()
                 DribblerMotorState(0,255);
             }else if(gpio_get(TSpin3) == 1){
                 mode = 3;
-                DribblerMotorState(1,255);
+                DribblerMotorState(0,255);
             }else if(gpio_get(TSpin4) == 1){
                 mode = 4;
                 DefenceStart();
-                DribblerMotorState(1,255);
+                DribblerMotorState(0,255);
             }
-        }else if(mode == 1 || mode == 2){
+        }else if(mode == 1 || mode == 2 || mode == 9 || mode == 10){
             Attack();
         }else if(mode == 3 || mode == 4){
             Defence();
@@ -64,35 +64,24 @@ int main()
             //ディフェンスからアタッカーに替わるときの初期化
             float PreTime = time_us_32() / 1000000.0;
             float Time = 0;
-            while(Time < 0.1){
+            while(Time < 0.3){
                 UseLineSensor();
                 UseGyroSensor();
-                MotorDuty[0] = DefaultSpeed;
-                MotorDuty[1] = DefaultSpeed;
-                MotorDuty[2] = DefaultSpeed;
-                MotorDuty[3] = DefaultSpeed;
+                MotorDuty[0] = DefaultSpeed1;
+                MotorDuty[1] = DefaultSpeed2;
+                MotorDuty[2] = DefaultSpeed3;
+                MotorDuty[3] = DefaultSpeed4;
                 Turn();
                 UseMotorDuty();
-                if(AllLineSensor <= ErorrLineSensor){
-                    Time += time_us_32() / 1000000.0 - PreTime;
-                }
+                Time += time_us_32() / 1000000.0 - PreTime;
                 PreTime = time_us_32() / 1000000.0;
             }
             mode -= 6;
             //割り込み処理を行う
             gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
-            DribblerMotorState(0,255);
-            sleep_ms(5000);
-            MainMotorState(1,0,255);
-            MainMotorState(2,0,255);
-            MainMotorState(3,1,255);
-            MainMotorState(4,1,255);
-            sleep_ms(1000);
-            MainMotorState(1,2,255);
-            MainMotorState(2,2,255);
-            MainMotorState(3,2,255);
-            MainMotorState(4,2,255);
+            MainMotorState(1,0,128);
+            MainMotorState(2,0,128);
         }
     }
 }
