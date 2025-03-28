@@ -15,6 +15,8 @@
 
 float AngleSpeed = 0;
 float AngleSpeedI = 0;
+float LastATime = -2;
+float LastCTime = -2;
 uint32_t BallPreTime = 0;
 uint32_t MainPreTime = 0;
 uint32_t PreTime1;
@@ -38,10 +40,10 @@ void Attack(){
          (AngleX > 180 &&                  405 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 540 - AngleX) )){
           //ゴールの左側の奥?
           isBreak = false;
-          while (AngleX < 210 || 230 < AngleX) {
+          while (AngleX < 250 || 270 < AngleX) {
             UseLineSensor();
             UseGyroSensor();
-            if(30 < AngleX && AngleX < 210){
+            if(70 < AngleX && AngleX < 250){
               MainMotorState(1, 0, LeastTurnSpeed);
               MainMotorState(2, 0, LeastTurnSpeed);
               MainMotorState(3, 1, LeastTurnSpeed);
@@ -57,16 +59,16 @@ void Attack(){
               break;
             }
           }
-          if(isBreak == false) Makao(false,140);
+          if(isBreak == false) Makao(false,180);
         }else if(OpponentGoalAngle != 999 && ((AngleX <= 180 &&         180 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 315 - AngleX) ||
          (180 < AngleX && AngleX <= 315 && ((540 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 360) || 0 < OpponentGoalAngle && OpponentGoalAngle < 315 - AngleX)) ||
          (AngleX > 315 &&                    540 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 675 - AngleX) )){
           //ゴールの右側の奥
           isBreak = false;
-          while (AngleX < 130 || 150 < AngleX) {
+          while (AngleX < 90 || 110 < AngleX) {
             UseLineSensor();
             UseGyroSensor();
-            if(AngleX < 130 || 290 < AngleX){
+            if(AngleX < 90 || 270 < AngleX){
               MainMotorState(1, 0, LeastTurnSpeed);
               MainMotorState(2, 0, LeastTurnSpeed);
               MainMotorState(3, 1, LeastTurnSpeed);
@@ -82,7 +84,7 @@ void Attack(){
               break;
             }
           }
-          if(isBreak == false) Makao(true,220);
+          if(isBreak == false) Makao(true,180);
         }else if(OpponentGoalDistance < 115){
           isBreak = false;
           gpio_put(Bupin,1);
@@ -107,10 +109,11 @@ void Attack(){
           }
           if (360 - AngleX > OpponentGoalAngle) {
             //ゴールの左側にいるとき
-            Makao(true,290);
+            Makao(true,280);
           } else{
             //ゴールの右側にいるとき
-            Makao(false,70);
+            Makao(false,80);
+            
           }
           gpio_put(Bupin,0);
         }else{
@@ -150,15 +153,15 @@ void Attack(){
         } else if (BallAngle < -180) {
           BallAngle += 360;
         }
-        if (BallDistance == 4) {
+        /*if (BallDistance == 4) {
           ChaseBall(BallAngle,false);
         } else if (BallDistance == 3) {
           ChaseBall(BallAngle * 1.25,false);
-        } else {
+        } else */{
           if ((-60 <= BallAngle && BallAngle <= 60) || (300 <= BallAngle && BallAngle <= 420)) {
-            ChaseBall(BallAngle * 1.2,false);
+            ChaseBall(BallAngle * 1.5,false);
           } else {
-            ChaseBall(BallAngle * 1.3,false);
+            ChaseBall(BallAngle * 1.5,false);
           }
         }
       }
@@ -174,7 +177,8 @@ void LineMove(){
       int LineDuty[4];
       {
         //反応したラインセンサから遠ざかるように進む
-        if(AllLineSensorA + LineSensorE[15] + LineSensorE[0] + LineSensorE[1] > 0){
+        if(AllLineSensorA + LineSensorE[15] + LineSensorE[0] + LineSensorE[1] > 0 || (AllLineSensorC + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] > 0 && time_us_32() / 1000000.0 - LastATime < 2 )){
+          LastATime = time_us_32() / 1000000.0;
           if(45 <= OpponentGoalAngle && OpponentGoalAngle <= 110 || LeftWall <= 71){
             //左端
             LineDuty[0] = -LineSpeed / 2;
@@ -211,11 +215,12 @@ void LineMove(){
             LineDuty[2] = LineSpeed;
             LineDuty[3] = -LineSpeed;
           }
-        }else if(AllLineSensorC + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] > 0){
+        }else if(AllLineSensorC + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] > 0 || (AllLineSensorA + LineSensorE[15] + LineSensorE[0] + LineSensorE[1] > 0 && time_us_32() / 1000000.0 - LastCTime < 2 )){
+          LastCTime = time_us_32() / 1000000.0;
           if((80 <= MyGoalAngle && MyGoalAngle <= 135) || LeftWall <= 71){
             //左端
             LineDuty[0] = LineSpeed;
-            LineDuty[1] = LineSpeed / 2;
+            LineDuty[1] = LineSpeed / 1.3;
             LineDuty[2] = LineSpeed;
             LineDuty[3] = LineSpeed / 2;
           }else if((225 <= MyGoalAngle && MyGoalAngle <= 280) || RightWall <= 55){
@@ -330,16 +335,16 @@ void Makao(bool isClockWise,int TargetAngle){
     while (TargetAngle - 150 < AngleX && AngleX <= TargetAngle) {
       UseLineSensor();
       UseGyroSensor();
-      if((int)((AngleX - (TargetAngle - 100)) * 3.5) > 255){
+      if((int)((AngleX - (TargetAngle - 140)) * 3.5) > 255){
         MainMotorState(1, 0, 255);
         MainMotorState(2, 0, 255);
         MainMotorState(3, 1, 255);
         MainMotorState(4, 1, 255);
-      }else if((int)((AngleX - (TargetAngle - 100))* 3.5) > 100){
-        MainMotorState(1, 0, (int)((AngleX - (TargetAngle - 100)) * 3.5));
-        MainMotorState(2, 0, (int)((AngleX - (TargetAngle - 100)) * 3.5));
-        MainMotorState(3, 1, (int)((AngleX - (TargetAngle - 100)) * 3.5));
-        MainMotorState(4, 1, (int)((AngleX - (TargetAngle - 100)) * 3.5));
+      }else if((int)((AngleX - (TargetAngle - 140))* 3.5) > 100){
+        MainMotorState(1, 0, (int)((AngleX - (TargetAngle - 140)) * 3.5));
+        MainMotorState(2, 0, (int)((AngleX - (TargetAngle - 140)) * 3.5));
+        MainMotorState(3, 1, (int)((AngleX - (TargetAngle - 140)) * 3.5));
+        MainMotorState(4, 1, (int)((AngleX - (TargetAngle - 140)) * 3.5));
       }else{
         MainMotorState(1, 0, 100);
         MainMotorState(2, 0, 100);
@@ -383,7 +388,7 @@ void Makao(bool isClockWise,int TargetAngle){
         MainMotorState(2, 1, 255);
         MainMotorState(4, 0, 255);
         MainMotorState(3, 0, 255);
-      }else if((int)((TargetAngle + 130 - AngleX) * 3.5) > 100){
+      }else if((int)((TargetAngle + 140 - AngleX) * 3.5) > 100){
         MainMotorState(1, 1, (int)((TargetAngle + 140 - AngleX) * 3.5));
         MainMotorState(2, 1, (int)((TargetAngle + 140 - AngleX) * 3.5));
         MainMotorState(4, 0, (int)((TargetAngle + 140 - AngleX) * 3.5));

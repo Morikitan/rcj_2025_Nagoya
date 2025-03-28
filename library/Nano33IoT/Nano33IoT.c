@@ -6,7 +6,7 @@
 #include "hardware/adc.h"
 #include "actions.h"
 
-bool isBLE = true;
+bool isBLE = false;
 bool UsedBLE = false;
 
 void Nano33IoTSetup(){

@@ -62,9 +62,7 @@ void UseGyroSensor(){
         }*/
         if(isBreak == true){
             printf("ジャイロ死亡\n");
-            gpio_put(TSpin6,1);
         }else{
-            gpio_put(TSpin6,0);
             i2c_read_blocking(i2c1, BNO_ADDRESS, buffer, 2, false); 
             AngleX = ((buffer[1] << 8) | buffer[0]) / 16.0;
             if(SerialWatch == 'a'){

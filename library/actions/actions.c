@@ -46,10 +46,10 @@ void VariableSetup(){
   c カメラの値
   v ベクトル
   *******************/
-  SerialWatch = 'c';
+  SerialWatch = 'l';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
-  isYellowMyGoal = 0;
+  isYellowMyGoal = 1;
 
   //mode
   mode = 0;  //mode = 99で全部正転
@@ -112,7 +112,7 @@ void PinSetup(){
   gpio_set_dir(TSpin3,GPIO_IN);
   gpio_set_dir(TSpin4,GPIO_IN);
   gpio_set_dir(TSpin5,GPIO_IN);
-  gpio_set_dir(TSpin6,GPIO_OUT);
+  gpio_set_dir(TSpin6,GPIO_IN);
   gpio_set_dir(Bupin,GPIO_OUT);
   gpio_pull_down(TSpin5);
 }

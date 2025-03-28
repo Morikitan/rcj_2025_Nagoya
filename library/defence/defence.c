@@ -82,34 +82,72 @@ void Defence(){
           printf("C群\n");
         }
       }
-    }else if(225 <= BallAngle && BallAngle < 350  && MyGoalAngle >= 210){
+    }else if(180 <= BallAngle && BallAngle < 350  && MyGoalAngle <= 150){
       gpio_put(Bupin,0);
-      while(225 <= BallAngle && BallAngle < 350  && (mode == 3 || mode == 4) && MyGoalAngle >= 195){
+      while(180 <= BallAngle && BallAngle < 350  && (mode == 3 || mode == 4) && MyGoalAngle <= 165){
         UseBLE();
         UseLineSensor();
         UseBallSensor();
+        UseCamera();
         if(AllLineSensorE > 0){
-          Brake();
+          if(BallAngle > 280){
+            Brake();
+          }else if(AllLineSensorA > 0){
+            MotorDuty[0] = LeastSpeed + 10;
+            MotorDuty[1] = LeastSpeed + 10;
+            MotorDuty[2] = LeastSpeed + 10;
+            MotorDuty[3] = LeastSpeed + 10;
+            Turn();
+            UseMotorDuty();
+          }else{
+            MotorDuty[0] = (LeastSpeed + 10) * -1;
+            MotorDuty[1] = (LeastSpeed + 10) * -1;
+            MotorDuty[2] = (LeastSpeed + 10) * -1;
+            MotorDuty[3] = (LeastSpeed + 10) * -1;
+            Turn();
+            UseMotorDuty();
+          }
         }else{
-          MainMotorState(1, 1, LeastSpeed + 10);
-          MainMotorState(2, 0, LeastSpeed + 10);
-          MainMotorState(3, 1, LeastSpeed + 10);
-          MainMotorState(4, 0, LeastSpeed + 10);
+          MotorDuty[0] = (LeastSpeed + 10);
+          MotorDuty[1] = (LeastSpeed + 10) * -1;
+          MotorDuty[2] = (LeastSpeed + 10);
+          MotorDuty[3] = (LeastSpeed + 10) * -1;
+          Turn();
+          UseMotorDuty();
         }
       }
-    }else if(10 < BallAngle && BallAngle <= 135 && MyGoalAngle <= 150){
+    }else if(10 < BallAngle && BallAngle <= 180 && MyGoalAngle >= 210){
       gpio_put(Bupin,0);
-      while(10 < BallAngle && BallAngle <= 135 && (mode == 3 || mode == 4) && MyGoalAngle <= 165){
+      while(10 < BallAngle && BallAngle <= 180 && (mode == 3 || mode == 4) && MyGoalAngle >= 195){
         UseBLE();
         UseLineSensor();
         UseBallSensor();
+        UseCamera();
         if(AllLineSensorE > 0){
-          Brake();
+          if(BallAngle < 80){
+            Brake();
+          }else if(AllLineSensorA > 0){
+            MotorDuty[0] = LeastSpeed + 10;
+            MotorDuty[1] = LeastSpeed + 10;
+            MotorDuty[2] = LeastSpeed + 10;
+            MotorDuty[3] = LeastSpeed + 10;
+            Turn();
+            UseMotorDuty();
+          }else{
+            MotorDuty[0] = (LeastSpeed + 10) * -1;
+            MotorDuty[1] = (LeastSpeed + 10) * -1;
+            MotorDuty[2] = (LeastSpeed + 10) * -1;
+            MotorDuty[3] = (LeastSpeed + 10) * -1;
+            Turn();
+            UseMotorDuty();
+          }
         }else{
-          MainMotorState(1, 0, LeastSpeed + 10);
-          MainMotorState(2, 1, LeastSpeed + 10);
-          MainMotorState(3, 0, LeastSpeed + 10);
-          MainMotorState(4, 1, LeastSpeed + 10);
+          MotorDuty[0] = (LeastSpeed + 10) * -1;
+          MotorDuty[1] = (LeastSpeed + 10);
+          MotorDuty[2] = (LeastSpeed + 10) * -1;
+          MotorDuty[3] = (LeastSpeed + 10);
+          Turn();
+          UseMotorDuty();
         }
       }
     }else {
@@ -118,9 +156,9 @@ void Defence(){
         gpio_put(Bupin,0);
         DefenceStart();
         DefenceTime = 0;
-      }else if(MyGoalAngle > 260){
+      }else if(245 < MyGoalAngle && MyGoalAngle < 400){
         gpio_put(Bupin,0);
-        while(MyGoalAngle > 240 && (mode == 3 || mode == 4)){
+        while(MyGoalAngle > 225 && (mode == 3 || mode == 4)){
           UseBLE();
           UseCamera();
           UseGyroSensor();
@@ -135,9 +173,9 @@ void Defence(){
         DefenceAngle = 1.57;
         VectorAbsoluteValue = 0;
         sleep_ms(100);
-      }else if(MyGoalAngle < 100){
+      }else if(MyGoalAngle < 115){
         gpio_put(Bupin,0);
-        while(MyGoalAngle < 120 && (mode == 3 || mode == 4)){
+        while(MyGoalAngle < 130 && (mode == 3 || mode == 4)){
           UseBLE();
           UseCamera();
           UseGyroSensor();
@@ -152,9 +190,9 @@ void Defence(){
         DefenceAngle = 1.57;
         VectorAbsoluteValue = 0;
         sleep_ms(100);
-      }else if ((10 < BallAngle && BallAngle <= 135 && MyGoalAngle < 210 && ((-2.47 < DefenceAngle && DefenceAngle < -0.67) || (0.67 < DefenceAngle && DefenceAngle < 2.47))) || MyGoalAngle < 150 || DefenceAngle <= -2.47 || 2.47 <= DefenceAngle) {
+      }else if ((10 < BallAngle && BallAngle <= 180 && MyGoalAngle < 210 && ((-2.47 < DefenceAngle && DefenceAngle < -0.67) || (0.67 < DefenceAngle && DefenceAngle < 2.47))) || MyGoalAngle < 150 || DefenceAngle <= -2.47 || 2.47 <= DefenceAngle) {
         //右側にボールがある → 右側へ移動する 2π/3 と -π/3
-        if(BallAngle >= 45){
+        if(BallAngle >= 45 && ((-1.7 < DefenceAngle && DefenceAngle < -1.4) || (1.4 < DefenceAngle && DefenceAngle < 1.7))){
           SpeedUp = 1.5;
         }else{
           SpeedUp = 1.0;
@@ -171,9 +209,9 @@ void Defence(){
           MotorDuty[3] = DefaultSpeed4 * (-cos(DefenceAngle + 1.57) + sin(DefenceAngle - 1.57)) * SpeedUp;
         }
         DefenceTime = 0;
-      } else if ((225 <= BallAngle && BallAngle < 350 && MyGoalAngle > 150) || MyGoalAngle > 210 || (-0.67 <= DefenceAngle && DefenceAngle <= 0.67) ){
+      } else if ((180 <= BallAngle && BallAngle < 350 && MyGoalAngle > 150) || MyGoalAngle > 210 || (-0.67 <= DefenceAngle && DefenceAngle <= 0.67) ){
         //左側にボールがある → 左側へ移動する
-        if(BallAngle <= 315){
+        if(BallAngle <= 315 && ((-1.7 < DefenceAngle && DefenceAngle < -1.4) || (1.4 < DefenceAngle && DefenceAngle < 1.7))){
           SpeedUp = 1.5;
         }else{
           SpeedUp = 1.0;
@@ -396,7 +434,6 @@ void DefenceStart() {
 
 void Return(){
   if(MyGoalDistance == 999){
-    gpio_put(TSpin6,1);
       //壁を利用する
       if(RightWall < LeftWall){
         MotorDuty[0] = (int)(DefaultSpeed * cos((-150) * 3.1415 / 180));
