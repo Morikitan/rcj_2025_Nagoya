@@ -34,7 +34,6 @@ int makao;
 float PMotorDuty[4] = {0,0,0,0};
 
 #define Kp 0.3
-
 void VariableSetup(){
   /*******************
   a 機体の角度(AngleX)
@@ -49,17 +48,17 @@ void VariableSetup(){
   SerialWatch = 'l';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
-  isYellowMyGoal = 1;
+  isYellowMyGoal = 0;
 
   //mode
-  mode = 0;  //mode = 99で全部正転
+  mode = 99;  //mode = 99で全部正転
 
   //gyro sensor
   AngleX = 0; 
   AngleY = 0; 
   AngleZ = 0;
 
-  //line sensor
+  //line sensor        
   ErorrLineSensor = 2;
 
   //camera
@@ -89,9 +88,9 @@ void UseMotorDuty(){
     if (MotorDuty[a] > 255) {
       MainMotorState(a + 1, 0, 255);
     } else if (MotorDuty[a] > 0) {
-      MainMotorState(a + 1, 0, MotorDuty[a]);
+      MainMotorState(a + 1, 0, (int)(MotorDuty[a]));
     } else if (MotorDuty[a] > -255) {
-      MainMotorState(a + 1, 1, MotorDuty[a] * -1);
+      MainMotorState(a + 1, 1, (int)(MotorDuty[a] * -1));
     } else {
       MainMotorState(a + 1, 1, 255);
     }
@@ -114,6 +113,7 @@ void PinSetup(){
   gpio_set_dir(TSpin5,GPIO_IN);
   gpio_set_dir(TSpin6,GPIO_IN);
   gpio_set_dir(Bupin,GPIO_OUT);
+  gpio_set_dir(DSpin,GPIO_OUT);
   gpio_pull_down(TSpin5);
 }
 

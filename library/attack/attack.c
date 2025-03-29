@@ -30,12 +30,13 @@ void Attack(){
     UseGyroSensor();
     UseBallSensor();
     UseCamera();
-    if (BallAngle == 999/* && (time_us_32() - PreTime1) / 10000000.0 > 0.1*/) {
+    if (BallAngle == 999) {
+      gpio_put(Bupin,0);
       if((time_us_32() - PreTime1) / 1000000.0 > 0.2){
-      isMotorDutyLine = false;
+        isMotorDutyLine = false;
       //マカオシュートの準備～実行
         //反転してるときはカメラの向きが変わる
-        if(OpponentGoalAngle != 999 &&((AngleX <= 45 && 45 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 180 - AngleX) ||
+        /*if(OpponentGoalAngle != 999 &&((AngleX <= 45 && 45 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 180 - AngleX) ||
          (45 < AngleX && AngleX <= 180 && ((405 - AngleX < OpponentGoalAngle && OpponentGoalAngle <= 360)||(0 <= OpponentGoalAngle && OpponentGoalAngle < 180 - AngleX))) ||
          (AngleX > 180 &&                  405 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 540 - AngleX) )){
           //ゴールの左側の奥?
@@ -116,52 +117,56 @@ void Attack(){
             
           }
           gpio_put(Bupin,0);
-        }else{
-          isMotorDutyLine = true;
+        }else*/{
           if(OpponentGoalAngle < 180){
-            //ゴールが左側にある
-            ChaseBall(OpponentGoalAngle + 20,true);
-          }else if(180 < OpponentGoalAngle && OpponentGoalAngle < 400){
             //ゴールが右側にある
-            ChaseBall(OpponentGoalAngle - 20,true);
+              NonDribbler(OpponentGoalAngle * 1.15,true);
+          }else if(180 < OpponentGoalAngle && OpponentGoalAngle < 400){
+            //ゴールが左側にある
+              NonDribbler(OpponentGoalAngle * 1.15,false);
           }else{
             //ゴールが遠すぎる
             if(LeftWall < RightWall){
-              //ゴールが左側にある
+              //ゴールが右側にある
               ChaseBall(AngleX * -1 - 20,true);
             }else{
-              //ゴールが右側にある
+              //ゴールが左側にある
               ChaseBall(AngleX * -1 + 20,true);
             }
           }
         }
       }
     } else {
+      gpio_put(Bupin,0);
       PreTime1 = time_us_32();
-      isMotorDutyLine = true;
       //ボールを拾いに行く
       if (BallAngle == -999) {
         //ボールがどこかわからない
-        MainMotorState(1, 2, 0);
-        MainMotorState(2, 2, 0);
-        MainMotorState(3, 2, 0);
-        MainMotorState(4, 2, 0);
+        while(BallAngle == -999){
+          UseBallSensor();
+          MainMotorState(1,2,0);
+          MainMotorState(2,2,0);
+          MainMotorState(3,2,0);
+          MainMotorState(4,2,0);
+        }
       } else {
         //ボールのほうへ全速前進
+        
         if (BallAngle >= 180) {
           BallAngle -= 360;
         } else if (BallAngle < -180) {
           BallAngle += 360;
         }
+        
         /*if (BallDistance == 4) {
           ChaseBall(BallAngle,false);
         } else if (BallDistance == 3) {
           ChaseBall(BallAngle * 1.25,false);
         } else */{
           if ((-60 <= BallAngle && BallAngle <= 60) || (300 <= BallAngle && BallAngle <= 420)) {
-            ChaseBall(BallAngle * 1.5,false);
+            ChaseBall(BallAngle * 1.45,false);
           } else {
-            ChaseBall(BallAngle * 1.5,false);
+            ChaseBall(BallAngle * 1.55,false);
           }
         }
       }
@@ -210,9 +215,9 @@ void LineMove(){
             LineDuty[2] = LineSpeed;
             LineDuty[3] = -LineSpeed / 2;
           }else{
-            LineDuty[0] = LineSpeed;
+            LineDuty[0] = (int)(LineSpeed / 1.5);
             LineDuty[1] = -LineSpeed;
-            LineDuty[2] = LineSpeed;
+            LineDuty[2] = (int)(LineSpeed / 1.5);
             LineDuty[3] = -LineSpeed;
           }
         }else if(AllLineSensorC + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] > 0 || (AllLineSensorA + LineSensorE[15] + LineSensorE[0] + LineSensorE[1] > 0 && time_us_32() / 1000000.0 - LastCTime < 2 )){
@@ -220,7 +225,7 @@ void LineMove(){
           if((80 <= MyGoalAngle && MyGoalAngle <= 135) || LeftWall <= 71){
             //左端
             LineDuty[0] = LineSpeed;
-            LineDuty[1] = LineSpeed / 1.3;
+            LineDuty[1] = LineSpeed / 2;
             LineDuty[2] = LineSpeed;
             LineDuty[3] = LineSpeed / 2;
           }else if((225 <= MyGoalAngle && MyGoalAngle <= 280) || RightWall <= 55){
@@ -249,9 +254,9 @@ void LineMove(){
             LineDuty[3] = LineSpeed;
           }else{
             LineDuty[0] = -LineSpeed;
-            LineDuty[1] = LineSpeed;
+            LineDuty[1] = (int)(LineSpeed / 1.5);
             LineDuty[2] = -LineSpeed;
-            LineDuty[3] = LineSpeed;
+            LineDuty[3] = (int)(LineSpeed / 1.5);
           }
         }
       }
@@ -261,7 +266,7 @@ void LineMove(){
       MotorDuty[3] = LineDuty[3];
       UseMotorDuty();
       MainPreTime = time_us_32() / 1000000.0;
-      while (LineDeltaTime < 0.05) {
+      while (LineDeltaTime < 0.07) {
         UseAllSensor();
         if (AllLineSensor <= ErorrLineSensor) {
           LineDeltaTime += time_us_32() / 1000000.0 - MainPreTime;
@@ -309,6 +314,50 @@ void ChaseBall(float angle,bool isMakao){
   //ボールを持っているときに左右の動きの動きをつける
   if(isMakao == true)SinSpeed2 = SinSpeed * sin(BallPreTime / 1000000.0);
   else SinSpeed2 = 0;
+  //壁際に近い時は減速する
+  if(LeftWall < 50 || RightWall < 50) Gensoku = 1.0;
+  else Gensoku = 1.0;
+
+  MotorDuty[0] = (int)(DefaultSpeed * cos((angle * -1 + 45) * 3.1415 / 180) * Gensoku + AngleSpeed + SinSpeed2);
+  MotorDuty[1] = (int)(DefaultSpeed * sin((angle * -1 + 45) * 3.1415 / 180) * Gensoku + AngleSpeed - SinSpeed2);
+  MotorDuty[2] = (int)(DefaultSpeed * cos((angle * -1 + 45) * 3.1415 / 180) * Gensoku - AngleSpeed + SinSpeed2);
+  MotorDuty[3] = (int)(DefaultSpeed * sin((angle * -1 + 45) * 3.1415 / 180) * Gensoku - AngleSpeed - SinSpeed2);
+
+  UseMotorDuty();
+
+  if (SerialWatch == 'm') {
+    printf("BallAngle : %f AngleX : %f AngleSpeed : %f",BallAngle,AngleX,AngleSpeed);
+    printf(" motor1 : %d m2 : %d m3 : %d m4 : %d",MotorDuty[0],MotorDuty[1],MotorDuty[2],MotorDuty[3]);
+    printf(" 回転 : %d 縦 : %d 横 : %d\n",MotorDuty[0] + MotorDuty[1] - MotorDuty[2] - MotorDuty[3],MotorDuty[0] + MotorDuty[1] + MotorDuty[2] + MotorDuty[3],MotorDuty[0] - MotorDuty[1] + MotorDuty[2] - MotorDuty[3]);  //反時計が正
+  }
+  BallPreTime = time_us_32();
+}
+
+void NonDribbler(float angle,bool isClockWise){
+  if(isClockWise == true){
+    if (AngleX > 210) {
+        AngleSpeed = 40;
+    } else if(AngleX > 30){
+        AngleSpeed = -40;
+    }else{
+        AngleSpeed = 40;
+    }
+  }else{
+    if (AngleX > 330) {
+       AngleSpeed = -40;
+    } else if(AngleX > 150){
+      
+        AngleSpeed = 40;
+      
+    }else{
+        AngleSpeed = -40;
+      
+    }
+  }
+  float SinSpeed2;
+  float Gensoku;
+  //ボールを持っているときに左右の動きの動きをつける
+  SinSpeed2 = 0;
   //壁際に近い時は減速する
   if(LeftWall < 50 || RightWall < 50) Gensoku = 1.0;
   else Gensoku = 1.0;
@@ -429,7 +478,7 @@ void Makao(bool isClockWise,int TargetAngle){
       }
     }
   }
-  DribblerMotorState(0,255);
+  DribblerMotorState(0,DefaultDribblerSpeed);
   if(mode == 9 || mode == 10){
     mode -= 6;
     DefenceStart();

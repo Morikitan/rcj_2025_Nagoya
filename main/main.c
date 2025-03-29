@@ -39,22 +39,22 @@ int main()
             if(gpio_get(TSpin1) == 1){
                 mode = 1;
                 //割り込み処理を行う
-                gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&Attack);
+                gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);
 
-                DribblerMotorState(0,255);
+                DribblerMotorState(0,DefaultDribblerSpeed);
             }else if(gpio_get(TSpin2) == 1){
                 mode = 2;
                 //割り込み処理を行う
-                gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&Attack);
+                gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);
                 
-                DribblerMotorState(0,255);
+                DribblerMotorState(0,DefaultDribblerSpeed);
             }else if(gpio_get(TSpin3) == 1){
                 mode = 3;
-                DribblerMotorState(0,255);
+                DribblerMotorState(0,DefaultDribblerSpeed);
             }else if(gpio_get(TSpin4) == 1){
                 mode = 4;
                 DefenceStart();
-                DribblerMotorState(0,255);
+                DribblerMotorState(0,DefaultDribblerSpeed);
             }
         }else if(mode == 1 || mode == 2 || mode == 9 || mode == 10){
             Attack();
@@ -80,8 +80,8 @@ int main()
             //割り込み処理を行う
             gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
-            MainMotorState(1,0,128);
-            MainMotorState(2,0,128);
+            UseLineSensor();
+            DribblerMotorState(0,255);
         }
     }
 }

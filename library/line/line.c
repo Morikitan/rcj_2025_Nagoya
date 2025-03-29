@@ -10,6 +10,7 @@
 #define MCP23017_ADDRESS_2 0x21
 
 int LineSetup(){
+    gpio_put(DSpin,1);
     i2c_init(i2c0,400000);
     gpio_set_function(SDA0pin, GPIO_FUNC_I2C);
     gpio_set_function(SCL0pin, GPIO_FUNC_I2C);
@@ -53,6 +54,7 @@ void UseLineSensor(){
     }
     isTimeOut = false;
     I2CTime = time_us_32() / 1000000.0;
+    
     i2c_write_blocking(i2c0,MCP23017_ADDRESS_2,(uint8_t[]){0x12},1,true);
     while(i2c_get_read_available(i2c0)){
         if(time_us_32() / 1000000.0 - I2CTime > 0.1){
@@ -75,6 +77,7 @@ void UseLineSensor(){
             if(SerialWatch == 'l')printf("%d ",LineSensorE[a]);
         }
     }
+    
     if(SerialWatch == 'l') printf("\n");
     AllLineSensorA = LineSensorABCD[0] + LineSensorABCD[1] + LineSensorABCD[2] + LineSensorABCD[3];
     AllLineSensorB = LineSensorABCD[4] + LineSensorABCD[5] + LineSensorABCD[6] + LineSensorABCD[7];
@@ -82,10 +85,18 @@ void UseLineSensor(){
     AllLineSensorD = LineSensorABCD[12] + LineSensorABCD[13] + LineSensorABCD[14] + LineSensorABCD[15];
     if(AllLineSensorA + AllLineSensorB + AllLineSensorC + AllLineSensorD == 16){
         AllLineSensorA = 0;AllLineSensorB = 0;AllLineSensorC = 0;AllLineSensorD = 0;
+        for(int a = 0;a < 16;a++){
+            LineSensorABCD[a] = 0 ;
+        }
+        printf("ライン0x20故障 ");
     }
     AllLineSensorE = LineSensorE[0] + LineSensorE[1] + LineSensorE[2] + LineSensorE[3] + LineSensorE[4] + LineSensorE[5] + LineSensorE[6] + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] + LineSensorE[10] + LineSensorE[11] + LineSensorE[12] + LineSensorE[13] + LineSensorE[14] + LineSensorE[15];
-    if(AllLineSensorE > 12){
+    if(AllLineSensorE > 12 || mode == 1 || mode == 2){
         AllLineSensorE = 0;
+        for(int a = 0;a < 16;a++){
+            LineSensorE[a] = 0 ;
+        }
+        printf("ライン0x21故障 ");
     }
     AllLineSensor = AllLineSensorA + AllLineSensorB + AllLineSensorC + AllLineSensorD + AllLineSensorE;
 }
