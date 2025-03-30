@@ -45,9 +45,9 @@ extern int makao;
 
 //speed
 #define LeastTurnSpeed 100
-#define LeastSpeed 125
+#define LeastSpeed 120
 #define TurnSpeed 120
-#define DefaultSpeed 210
+#define DefaultSpeed 220
 #define DefaultSpeed1 170
 #define DefaultSpeed2 170
 #define DefaultSpeed3 170
@@ -58,7 +58,7 @@ extern int makao;
 #define LargeDefaultSpeed4 200
 #define LineSpeed 200
 #define DefenceSpeed 120
-#define SinSpeed 10
+#define SinSpeed 20
 #define VectorSpeed 30
 
 #define DefaultDribblerSpeed 255

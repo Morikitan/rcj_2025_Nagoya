@@ -51,7 +51,7 @@ void VariableSetup(){
   isYellowMyGoal = 0;
 
   //mode
-  mode = 99;  //mode = 99で全部正転
+  mode = 0;  //mode = 99で全部正転
 
   //gyro sensor
   AngleX = 0; 

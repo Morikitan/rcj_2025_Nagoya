@@ -14,7 +14,7 @@
 
 float SpeedUp = 1;
 float DefenceTime = 0;
-float DefenceDeltaTime = 0;
+float DefencePreTime = 0;
 float DefenceBallTime = 0;
 float TurnDuty;
 float VectorAbsoluteValue = 0;
@@ -39,9 +39,10 @@ void Defence(){
           Turn();
           UseMotorDuty();
           if (SerialWatch == 'd') {
-          printf("ボールを持っています\n");
+            printf("ボールを持っています\n");
+          }
         }
-        }
+        DefenceBallTime = time_us_32() / 1000000.0;
       }
     }else{
       DefenceBallTime = time_us_32() / 1000000.0;
@@ -51,7 +52,7 @@ void Defence(){
       //A群が反応 → 上がる
       gpio_put(Bupin,0);
       DefenceTime = 0;
-      DefenceDeltaTime = time_us_32() / 1000000.0;
+      DefencePreTime = time_us_32() / 1000000.0;
       while (AllLineSensorE == 0 && AllLineSensorC == 0 && DefenceTime < 0.5 && (mode == 3 || mode == 4)) {
         UseBLE();
         UseLineSensor();
@@ -59,8 +60,8 @@ void Defence(){
         MainMotorState(2, 0, LargeDefaultSpeed2);
         MainMotorState(3, 0, LargeDefaultSpeed3);
         MainMotorState(4, 0, LargeDefaultSpeed4);
-        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-        DefenceDeltaTime = time_us_32() / 1000000.0;
+        DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+        DefencePreTime = time_us_32() / 1000000.0;
         if (SerialWatch == 'd') {
           printf("A群\n");
         }
@@ -69,7 +70,7 @@ void Defence(){
       //C群が反応 → 下がる
       gpio_put(Bupin,0);
       DefenceTime = 0;
-      DefenceDeltaTime = time_us_32() / 1000000.0;
+      DefencePreTime = time_us_32() / 1000000.0;
       while (AllLineSensorE == 0 && AllLineSensorA == 0 && DefenceTime < 0.5 && (mode == 3 || mode == 4) && (160 <= MyGoalAngle && MyGoalAngle <= 200)) {
         UseBLE();
         UseLineSensor();
@@ -78,8 +79,8 @@ void Defence(){
         MainMotorState(2, 1, LeastSpeed);
         MainMotorState(3, 1, LeastSpeed);
         MainMotorState(4, 1, LeastSpeed);
-        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-        DefenceDeltaTime = time_us_32() / 1000000.0;
+        DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+        DefencePreTime = time_us_32() / 1000000.0;
         if (SerialWatch == 'd') {
           printf("C群\n");
         }
@@ -246,11 +247,11 @@ void Defence(){
         MotorDuty[2] = 0;
         MotorDuty[3] = 0;
         //ボールが数秒正面にあったら押し出す
-        DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-        if(DefenceTime > 2 && DefenceTime < 2.5){
+        DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+        if(DefenceTime > 2 && DefenceTime < 2.5 && BallAngle == 0){
           DefenceTime = 0;
-          DefenceDeltaTime = time_us_32() / 1000000.0;
-          while(DefenceTime < 1.3 && ((-60 < BallAngle && BallAngle < 60) || (300 < BallAngle && BallAngle < 420)) && (mode == 3 || mode == 4)){
+          DefencePreTime = time_us_32() / 1000000.0;
+          while(DefenceTime < 1.7 && ((-60 < BallAngle && BallAngle < 60) || (300 < BallAngle && BallAngle < 420)) && (mode == 3 || mode == 4)){
             UseBLE();
             UseBallSensor();
             UseGyroSensor();
@@ -274,14 +275,15 @@ void Defence(){
             Turn();
             //計算した値を出力
             UseMotorDuty();
-            DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-            DefenceDeltaTime = time_us_32() / 1000000.0;
+            DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+            DefencePreTime = time_us_32() / 1000000.0;
           }
           DefenceStart();
+          DefenceTime = 0;
         }
         LineTrace();
       }
-      DefenceDeltaTime = time_us_32() / 1000000.0;
+      DefencePreTime = time_us_32() / 1000000.0;
       //正位置につくための補正
       LineTrace();
       //正面を向くための補正
@@ -377,7 +379,7 @@ void DefenceStart() {
   UseGyroSensor();
   UseBallSensor();
   DefenceTime = 0;
-  DefenceDeltaTime = time_us_32() / 1000000.0;
+  DefencePreTime = time_us_32() / 1000000.0;
   while (10 < AngleX && AngleX < 350 && (mode == 3 || mode == 4) && DefenceTime < 5) {
     UseBLE();
     UseGyroSensor();
@@ -393,8 +395,8 @@ void DefenceStart() {
       MainMotorState(4, 0, LeastTurnSpeed);
     }
     if(SerialWatch == 'd') printf("DefenceStart1\n");
-    DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-    DefenceDeltaTime = time_us_32() / 1000000.0;
+    DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+    DefencePreTime = time_us_32() / 1000000.0;
   }
   UseLineSensor();
   if(MyGoalDistance > 64){
@@ -403,7 +405,7 @@ void DefenceStart() {
     isInCourt = true;
   }
   DefenceTime = 0;
-  DefenceDeltaTime = time_us_32() / 1000000.0;
+  DefencePreTime = time_us_32() / 1000000.0;
   while ((AllLineSensorE + AllLineSensorA == 0 || MyGoalDistance > 90) && (mode == 3 || mode == 4) && DefenceTime < 5) {
     UseBLE();
     UseLineSensor();
@@ -416,14 +418,14 @@ void DefenceStart() {
     //計算した値を出力
     UseMotorDuty(); 
     if(SerialWatch == 'd') printf("DefenceStart2\n");
-    DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-    DefenceDeltaTime = time_us_32() / 1000000.0;
+    DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+    DefencePreTime = time_us_32() / 1000000.0;
   }
   Brake();
   sleep_ms(250);
   //位置の微調整
   DefenceTime = 0;
-  DefenceDeltaTime = time_us_32() / 1000000.0;
+  DefencePreTime = time_us_32() / 1000000.0;
   while(AllLineSensorB == 0 && AllLineSensorD == 0 && DefenceTime < 5){
     UseLineSensor();
     UseGyroSensor();
@@ -442,8 +444,8 @@ void DefenceStart() {
     }
     Turn();
     UseMotorDuty();
-    DefenceTime += time_us_32() / 1000000.0 - DefenceDeltaTime;
-    DefenceDeltaTime = time_us_32() / 1000000.0;
+    DefenceTime += time_us_32() / 1000000.0 - DefencePreTime;
+    DefencePreTime = time_us_32() / 1000000.0;
     if(SerialWatch == 'd') printf("DefenceStart3\n");
   }
   Brake();
@@ -467,16 +469,16 @@ void Return(){
       }
   }else if(!isInCourt){
     if(MyGoalDistance < 58) isInCourt = true;
-    MotorDuty[0] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180) * 0.8);
-    MotorDuty[1] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180) * 0.8);
-    MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180) * 0.8);
-    MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180) * 0.8);
+    MotorDuty[0] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+    MotorDuty[1] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+    MotorDuty[2] = (int)(DefaultSpeed * cos((MyGoalAngle * -1 + 45) * 3.1415 / 180));
+    MotorDuty[3] = (int)(DefaultSpeed * sin((MyGoalAngle * -1 + 45) * 3.1415 / 180));
   }else{
     if(MyGoalDistance > 75) isInCourt = false;
     MotorDuty[0] = DefaultSpeed1;
-    MotorDuty[1] = DefaultSpeed1;
-    MotorDuty[2] = DefaultSpeed1;
-    MotorDuty[3] = DefaultSpeed1;
+    MotorDuty[1] = DefaultSpeed2;
+    MotorDuty[2] = DefaultSpeed3;
+    MotorDuty[3] = DefaultSpeed4;
   }
 }
 
