@@ -55,6 +55,23 @@ int main()
                 mode = 4;
                 DefenceStart();
                 DribblerMotorState(0,DefaultDribblerSpeed);
+            }else if(gpio_get(TSpin5) == 1){
+                /*
+                MainMotorState(1,0,255);
+                MainMotorState(2,0,255);
+                MainMotorState(3,0,255);
+                MainMotorState(4,0,255);
+                sleep_ms(1000);
+                MainMotorState(1,1,255);
+                MainMotorState(2,1,255);
+                MainMotorState(3,1,255);
+                MainMotorState(4,1,255);
+                sleep_ms(1000);
+                MainMotorState(1,2,255);
+                MainMotorState(2,2,255);
+                MainMotorState(3,2,255);
+                MainMotorState(4,2,255);
+                */
             }
         }else if(mode == 1 || mode == 2 || mode == 9 || mode == 10){
             Attack();

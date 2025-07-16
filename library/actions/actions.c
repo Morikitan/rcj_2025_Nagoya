@@ -48,7 +48,7 @@ void VariableSetup(){
   SerialWatch = 'l';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
-  isYellowMyGoal = 0;
+  isYellowMyGoal = 1;
 
   //mode
   mode = 0;  //mode = 99で全部正転
@@ -59,7 +59,7 @@ void VariableSetup(){
   AngleZ = 0;
 
   //line sensor        
-  ErorrLineSensor = 2;
+  ErorrLineSensor = 1;
 
   //camera
   MyGoalX = 0;

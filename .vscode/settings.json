@@ -39,6 +39,8 @@
     "files.associations": {
         "pwm.h": "c",
         "uart.h": "c",
-        "nano33iot.h": "c"
+        "nano33iot.h": "c",
+        "actions.h": "c",
+        "cstdint": "c"
     }
 }

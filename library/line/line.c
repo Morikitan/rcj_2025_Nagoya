@@ -91,7 +91,7 @@ void UseLineSensor(){
         printf("ライン0x20故障 ");
     }
     AllLineSensorE = LineSensorE[0] + LineSensorE[1] + LineSensorE[2] + LineSensorE[3] + LineSensorE[4] + LineSensorE[5] + LineSensorE[6] + LineSensorE[7] + LineSensorE[8] + LineSensorE[9] + LineSensorE[10] + LineSensorE[11] + LineSensorE[12] + LineSensorE[13] + LineSensorE[14] + LineSensorE[15];
-    if(AllLineSensorE > 12 || mode == 1 || mode == 2){
+    if(AllLineSensorE > 12){
         AllLineSensorE = 0;
         for(int a = 0;a < 16;a++){
             LineSensorE[a] = 0 ;
