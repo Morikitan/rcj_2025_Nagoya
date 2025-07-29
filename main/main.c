@@ -12,17 +12,19 @@
 #include "line/line.h"
 #include "motor/motor.h"
 #include "Nano33IoT/Nano33IoT.h"
+#include "BLDC/BLDC.hpp"
 #include "config.h"
 
 uint32_t PreTime = 0;
 
 int main()
 {
+
     stdio_init_all();
     VariableSetup();
     PinSetup();
+    BLDCSetup();
     gpio_put(Bupin,1);
-    sleep_ms(1000);
     CameraSetup();
     GyroSetup();
     int ReturnData = LineSetup();
@@ -41,7 +43,16 @@ int main()
                 //割り込み処理を行う
                 gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);
 
-                DribblerMotorState(0,DefaultDribblerSpeed);
+                //DribblerMotorState(0,DefaultDribblerSpeed);
+                BLDCState(2000);
+                sleep_ms(1000);
+                BLDCState(1000);
+                sleep_ms(2000);
+                for (int pulse = 1000;pulse <= 2000;pulse += 50){
+                    BLDCState(pulse);
+                    printf("%d\n",pulse);
+                    sleep_ms(300);
+                }
             }else if(gpio_get(TSpin2) == 1){
                 mode = 2;
                 //割り込み処理を行う
@@ -56,22 +67,20 @@ int main()
                 DefenceStart();
                 DribblerMotorState(0,DefaultDribblerSpeed);
             }else if(gpio_get(TSpin5) == 1){
-                /*
                 MainMotorState(1,0,255);
                 MainMotorState(2,0,255);
                 MainMotorState(3,0,255);
                 MainMotorState(4,0,255);
-                sleep_ms(1000);
+                sleep_ms(750);
                 MainMotorState(1,1,255);
                 MainMotorState(2,1,255);
                 MainMotorState(3,1,255);
                 MainMotorState(4,1,255);
-                sleep_ms(1000);
+                sleep_ms(500);
                 MainMotorState(1,2,255);
                 MainMotorState(2,2,255);
                 MainMotorState(3,2,255);
                 MainMotorState(4,2,255);
-                */
             }
         }else if(mode == 1 || mode == 2 || mode == 9 || mode == 10){
             Attack();

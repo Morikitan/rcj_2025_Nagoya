@@ -10,5 +10,6 @@ target_include_directories(attack PRIVATE ../Nano33IoT)
 target_include_directories(attack PRIVATE ../line)
 target_include_directories(attack PRIVATE ../camera)
 target_include_directories(attack PRIVATE ../defence)
+target_include_directories(attack PRIVATE ../BLDC)
 
 target_link_libraries(attack pico_stdlib hardware_pwm hardware_gpio)

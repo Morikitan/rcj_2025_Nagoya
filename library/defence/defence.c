@@ -18,7 +18,8 @@ float DefencePreTime = 0;
 float DefenceBallTime = 0;
 float TurnDuty;
 float VectorAbsoluteValue = 0;
-float DefenceAngle;
+float DefenceAngle;  //ディフェンスの円形ラインの向き(-πからπ)
+float DefenceAngle2; //一時保管用
 bool isInCourt;
 #define WallDistance 80 //ゴールラインがない時の壁からの距離
 #define GoalDistance 70 //線上にいるときの自分のゴールの距離
@@ -26,7 +27,15 @@ bool isInCourt;
 void Defence(){
     //ディフェンダー
     UseAllSensor();
-    DefenceAngle = GetLineAngle();
+    DefenceAngle2 = GetLineAngle();
+    // 999.9になるときは円形ラインが反応していないから何もしない
+    if(DefenceAngle2 == -999.9){
+      //真ん中にいる　→　後ろ
+      DefenceAngle = -1.57;
+    }else{
+      DefenceAngle = DefenceAngle2;
+    }
+    
     if(BallAngle == 999){
       if(time_us_32() / 1000000.0 - DefenceBallTime > 1){
         while(time_us_32() / 1000000.0 - DefenceBallTime < 2 && (mode == 3 || mode == 4)){
@@ -484,6 +493,7 @@ void Return(){
 
 float GetLineAngle(){
   //Vectorは0度～360度(反時計回り)で考えます。
+  //結果は -πからπの弧度法(正面がπ/2)
   bool DoneLineSensor[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   float Vector[8] = {0,0,0,0,0,0,0,0};
   int VectorNumber = 0;
@@ -594,7 +604,7 @@ float GetLineAngle(){
   if(SerialWatch == 'v'){
     printf(" 向き(真右が0度) : ");
     if(VectorX == 999 && VectorY == 999){
-      printf("%f\n",DefenceAngle);
+      printf("ラインの上にいない!!\n");
     }else if(VectorX == 0 && VectorY == 0){
       printf("真ん中\n");
     }else{
@@ -602,10 +612,10 @@ float GetLineAngle(){
     }
   }
   //-π～πまででもとめられる。正面がπ/2になる
-  if(VectorX == 0 && VectorX == 0){
-    return -1.57;
-  }else if(VectorX == 999 && VectorY == 999){
-    return DefenceAngle;
+  if(VectorX == 999 && VectorX == 999){
+    return -999.9;
+  }else if(VectorX == 0 && VectorY == 0){
+    return 999.9;
   }else{
     return atan2(VectorY,VectorX);
   }

@@ -12,6 +12,7 @@
 #include "line.h"
 #include "camera.h"
 #include "defence.h"
+#include "BLDC.hpp"
 
 float AngleSpeed = 0;
 float AngleSpeedI = 0;
@@ -202,6 +203,67 @@ void Attack(){
             ChaseBall(BallAngle * 1.55,false);
           }
         }
+      }
+    }
+}
+
+void NewLineMove(){
+    UseLineSensor();
+    if(AllLineSensor > 0){
+      float LineDeltaTime = 0.0;
+      float DeltaTime = 0.0;
+      float FirstAngle;  //最初に踏んだラインの向き
+      float LineAngle; //円形ラインセンサの合成ベクトルの向き
+      Brake();
+      int LineDuty[4];
+      if(AllLineSensorA > 0){
+        FirstAngle = 1.57;
+        LineDuty[0] = -LineSpeed;
+        LineDuty[1] = -LineSpeed;
+        LineDuty[2] = -LineSpeed;
+        LineDuty[3] = -LineSpeed;
+      }else if(AllLineSensorB > 0){
+        FirstAngle = 3.14;
+        LineDuty[0] = LineSpeed;
+        LineDuty[1] = -LineSpeed;
+        LineDuty[2] = LineSpeed;
+        LineDuty[3] = -LineSpeed;
+      }else if(AllLineSensorC > 0){
+        FirstAngle = -1.57;
+        LineDuty[0] = -LineSpeed;
+        LineDuty[1] = -LineSpeed;
+        LineDuty[2] = -LineSpeed;
+        LineDuty[3] = -LineSpeed;
+      }else if(AllLineSensorD > 0){
+        FirstAngle = 0;
+        LineDuty[0] = -LineSpeed;
+        LineDuty[1] = LineSpeed;
+        LineDuty[2] = -LineSpeed;
+        LineDuty[3] = LineSpeed;
+      }
+      MainPreTime = time_us_32() / 1000000.0;
+      while (LineDeltaTime < 0.3) {
+        UseLineSensor();
+        UseGyroSensor();
+        if (AllLineSensor <= ErorrLineSensor) {
+          LineDeltaTime += time_us_32() / 1000000.0 - MainPreTime;
+        } else {
+          LineDeltaTime = 0;
+        }
+        DeltaTime += time_us_32() / 1000000.0 - MainPreTime;
+        MainPreTime = time_us_32() / 1000000.0;
+        LineAngle = GetLineAngle();
+        //-999.9の時は中央なので何もしない
+        if(LineAngle == 999.9){
+          //円形が反応しないか、最初の向きと逆の時
+          MotorDuty[0] = LineDuty[0];
+          MotorDuty[1] = LineDuty[1];
+          MotorDuty[2] = LineDuty[2];
+          MotorDuty[3] = LineDuty[3];
+        }else{
+
+        }
+        UseMotorDuty();
       }
     }
 }
@@ -463,7 +525,8 @@ void Makao(bool isClockWise,int TargetAngle){
         MainMotorState(4, 1, 80);
       }
       if(AngleX > TargetAngle - 10){
-        DribblerMotorState(0,50);
+        //DribblerMotorState(0,50);
+        BLDCState(1000);
       }
 
       /*if(AllLineSensor > ErorrLineSensor){
@@ -512,7 +575,8 @@ void Makao(bool isClockWise,int TargetAngle){
       }
 
       if(AngleX < TargetAngle + 10){
-        DribblerMotorState(0,50);
+        //DribblerMotorState(0,50);
+        BLDCState(1000);
       }
 
       /*if(AllLineSensor > ErorrLineSensor){
@@ -540,7 +604,10 @@ void Makao(bool isClockWise,int TargetAngle){
       }
     }
   }
-  DribblerMotorState(0,DefaultDribblerSpeed);
+  BLDCState(1500);
+  sleep_ms(300);
+  BLDCState(2000);
+  //DribblerMotorState(0,DefaultDribblerSpeed);
   if(mode == 9 || mode == 10){
     mode -= 6;
     DefenceStart();

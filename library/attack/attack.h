@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 void Attack();
+void NewLineMove();
 void LineMove();
 void ChaseBall(float angle,bool isMakao);
 void Makao(bool isClockwise,int TargetAngle);

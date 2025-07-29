@@ -18,7 +18,7 @@ target_include_directories(main PRIVATE ../library)
 # Add any user requested libraries
 target_link_libraries(main pico_stdlib hardware_pwm hardware_i2c hardware_gpio hardware_uart)
 target_link_libraries(main actions attack camera defence)
-target_link_libraries(main gyro line motor Nano33IoT)
+target_link_libraries(main gyro line motor Nano33IoT BLDC)
 
 pico_add_extra_outputs(main)
 

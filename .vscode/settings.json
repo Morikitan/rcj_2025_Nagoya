@@ -41,6 +41,8 @@
         "uart.h": "c",
         "nano33iot.h": "c",
         "actions.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "attack.h": "c",
+        "defence.h": "c"
     }
 }
