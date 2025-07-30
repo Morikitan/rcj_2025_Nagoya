@@ -24,10 +24,12 @@ uint32_t PreTime1;
 bool isBreak = false;
 bool isMotorDutyLine = false;
 
+int MakaoLeastSpeed = 120; // 過去は80
+
 void Attack(){
     UseBLE();
     //ライン上に乗っているかを判定する
-    LineMove();
+    NewLineMove();
     UseGyroSensor();
     UseBallSensor();
     UseCamera();
@@ -101,7 +103,7 @@ void Attack(){
             }
           }
           if(isBreak == false) Makao(true,195);
-        }else if(OpponentGoalDistance < 115){
+        }else if(OpponentGoalDistance < 110){
           isBreak = false;
           if (((AngleX < 180  && 180 - AngleX < OpponentGoalAngle && OpponentGoalAngle < 360 - AngleX)
           ||  (AngleX >= 180 && (540 - AngleX < OpponentGoalAngle && OpponentGoalAngle <= 360) || (0 < OpponentGoalAngle && OpponentGoalAngle < 360 - AngleX)))) {
@@ -230,10 +232,10 @@ void NewLineMove(){
         LineDuty[3] = -LineSpeed;
       }else if(AllLineSensorC > 0){
         FirstAngle = -1.57;
-        LineDuty[0] = -LineSpeed;
-        LineDuty[1] = -LineSpeed;
-        LineDuty[2] = -LineSpeed;
-        LineDuty[3] = -LineSpeed;
+        LineDuty[0] = LineSpeed;
+        LineDuty[1] = LineSpeed;
+        LineDuty[2] = LineSpeed;
+        LineDuty[3] = LineSpeed;
       }else if(AllLineSensorD > 0){
         FirstAngle = 0;
         LineDuty[0] = -LineSpeed;
@@ -254,14 +256,17 @@ void NewLineMove(){
         MainPreTime = time_us_32() / 1000000.0;
         LineAngle = GetLineAngle();
         //-999.9の時は中央なので何もしない
-        if(LineAngle == 999.9){
+        if(LineAngle == 999.9 || (FirstAngle > 0 && (FirstAngle - 4.28 < LineAngle && LineAngle < FirstAngle - 2.0)) || (FirstAngle == 0 && (LineAngle < -2.0 || 2.0 < LineAngle)) || (FirstAngle < 0 && (FirstAngle + 2.0 < LineAngle && LineAngle < FirstAngle + 4.28))){
           //円形が反応しないか、最初の向きと逆の時
           MotorDuty[0] = LineDuty[0];
           MotorDuty[1] = LineDuty[1];
           MotorDuty[2] = LineDuty[2];
           MotorDuty[3] = LineDuty[3];
-        }else{
-
+        }else if(LineAngle != -999.9){
+          MotorDuty[0] = (int)(LineSpeed * (cos(LineAngle) + sin(LineAngle)) / 1.2);
+          MotorDuty[1] = (int)(LineSpeed * (-cos(LineAngle) + sin(LineAngle)) / 1.2);
+          MotorDuty[2] = (int)(LineSpeed * (cos(LineAngle) + sin(LineAngle)) / 1.2);
+          MotorDuty[3] = (int)(LineSpeed * (-cos(LineAngle) + sin(LineAngle)) / 1.2);
         }
         UseMotorDuty();
       }
@@ -382,17 +387,17 @@ void ChaseBall(float angle,bool isMakao){
     {
       //ゴールの左側にいる
       if(180 < AngleX && AngleX < 210){
-        if (TurnSpeed * (AngleX - 180) / 180 > 40) {
-          AngleSpeed = -40;
+        if (TurnSpeed * (AngleX - 180) / 180 > 20) {
+          AngleSpeed = -20;
         } else {
           AngleSpeed = TurnSpeed * (AngleX - 180) / 180 * -1;
         }
       }else{
         if(180 < AngleX){
-          AngleSpeed = 40;
+          AngleSpeed = 20;
         }else{
-          if (TurnSpeed * (180 - AngleX) / 180 > 40) {
-            AngleSpeed = 40;
+          if (TurnSpeed * (180 - AngleX) / 180 > 20) {
+            AngleSpeed = 20;
           } else {
             AngleSpeed = TurnSpeed * (180 - AngleX) / 180;
           }
@@ -400,20 +405,20 @@ void ChaseBall(float angle,bool isMakao){
       }
     }else{
       if(150 < AngleX && AngleX < 180){
-        if (TurnSpeed * (180 - AngleX) / 180 > 40) {
-          AngleSpeed = 40;
+        if (TurnSpeed * (180 - AngleX) / 180 > 20) {
+          AngleSpeed = 20;
         } else {
           AngleSpeed = TurnSpeed * (180 - AngleX) / 180;
         }
       }else{
         if(AngleX >= 180){
-          if (TurnSpeed * (AngleX - 180) / 180 > 40) {
-            AngleSpeed = -40;
+          if (TurnSpeed * (AngleX - 180) / 180 > 20) {
+            AngleSpeed = -20;
           } else {
             AngleSpeed = TurnSpeed * (AngleX - 180) / 180 * -1;
           }
         }else{
-          AngleSpeed = -40;
+          AngleSpeed = -20;
         }
         
       } 
@@ -503,30 +508,30 @@ void NonDribbler(float angle,bool isClockWise){
 
 void Makao(bool isClockWise,int TargetAngle){
   Brake();
-  sleep_ms(300);
+  sleep_ms(1300);
   if(isClockWise == true){
     while (TargetAngle - 150 < AngleX && AngleX <= TargetAngle) {
       UseLineSensor();
       UseGyroSensor();
-      if((int)((AngleX - (TargetAngle - 140)) * 1.4) > 255){
-        MainMotorState(1, 0, 255);
-        MainMotorState(2, 0, 255);
-        MainMotorState(3, 1, 255);
-        MainMotorState(4, 1, 255);
-      }else if((int)((AngleX - (TargetAngle - 140))* 1.4) > 80){
+      //if((int)((AngleX - (TargetAngle - 140)) * 1.4) > 255){
+        MainMotorState(1, 1, 200);
+        MainMotorState(2, 1, 200);
+        MainMotorState(3, 1, 220);
+        MainMotorState(4, 1, 220);
+      /*}else if((int)((AngleX - (TargetAngle - 140))* 1.4) > MakaoLeastSpeed){
         MainMotorState(1, 0, (int)((AngleX - (TargetAngle - 140)) * 1.4));
         MainMotorState(2, 0, (int)((AngleX - (TargetAngle - 140)) * 1.4));
         MainMotorState(3, 1, (int)((AngleX - (TargetAngle - 140)) * 1.4));
         MainMotorState(4, 1, (int)((AngleX - (TargetAngle - 140)) * 1.4));
       }else{
-        MainMotorState(1, 0, 80);
-        MainMotorState(2, 0, 80);
-        MainMotorState(3, 1, 80);
-        MainMotorState(4, 1, 80);
-      }
+        MainMotorState(1, 0, MakaoLeastSpeed);
+        MainMotorState(2, 0, MakaoLeastSpeed);
+        MainMotorState(3, 1, MakaoLeastSpeed);
+        MainMotorState(4, 1, MakaoLeastSpeed);
+      }*/
       if(AngleX > TargetAngle - 10){
         //DribblerMotorState(0,50);
-        BLDCState(1000);
+        //BLDCState(1000);
       }
 
       /*if(AllLineSensor > ErorrLineSensor){
@@ -557,26 +562,26 @@ void Makao(bool isClockWise,int TargetAngle){
     while (TargetAngle <= AngleX && AngleX < TargetAngle + 150) {
       UseLineSensor();
       UseGyroSensor();
-      if((int)((TargetAngle + 140 - AngleX) * 1.4) > 255){
-        MainMotorState(1, 1, 255);
-        MainMotorState(2, 1, 255);
-        MainMotorState(4, 0, 255);
-        MainMotorState(3, 0, 255);
-      }else if((int)((TargetAngle + 140 - AngleX) * 1.4) > 80){
+      //if((int)((TargetAngle + 140 - AngleX) * 1.4) > 255){
+        MainMotorState(1, 1, 220);
+        MainMotorState(2, 1, 220);
+        MainMotorState(3, 1, 200);
+        MainMotorState(4, 1, 200);
+      /*}else if((int)((TargetAngle + 140 - AngleX) * 1.4) > MakaoLeastSpeed){
         MainMotorState(1, 1, (int)((TargetAngle + 140 - AngleX) * 1.4));
         MainMotorState(2, 1, (int)((TargetAngle + 140 - AngleX) * 1.4));
         MainMotorState(4, 0, (int)((TargetAngle + 140 - AngleX) * 1.4));
         MainMotorState(3, 0, (int)((TargetAngle + 140 - AngleX) * 1.4));
       }else{
-        MainMotorState(1, 1, 80);
-        MainMotorState(2, 1, 80);
-        MainMotorState(4, 0, 80);
-        MainMotorState(3, 0, 80);
-      }
+        MainMotorState(1, 1, MakaoLeastSpeed);
+        MainMotorState(2, 1, MakaoLeastSpeed);
+        MainMotorState(4, 0, MakaoLeastSpeed);
+        MainMotorState(3, 0, MakaoLeastSpeed);
+      }*/
 
       if(AngleX < TargetAngle + 10){
         //DribblerMotorState(0,50);
-        BLDCState(1000);
+        //BLDCState(1000);
       }
 
       /*if(AllLineSensor > ErorrLineSensor){
@@ -605,8 +610,6 @@ void Makao(bool isClockWise,int TargetAngle){
     }
   }
   BLDCState(1500);
-  sleep_ms(300);
-  BLDCState(2000);
   //DribblerMotorState(0,DefaultDribblerSpeed);
   if(mode == 9 || mode == 10){
     mode -= 6;

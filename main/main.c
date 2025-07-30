@@ -19,12 +19,15 @@ uint32_t PreTime = 0;
 
 int main()
 {
-
     stdio_init_all();
     VariableSetup();
     PinSetup();
     BLDCSetup();
+    BLDCState(2000);
+    sleep_ms(2000);
+    BLDCState(1000);
     gpio_put(Bupin,1);
+    sleep_ms(1000);
     CameraSetup();
     GyroSetup();
     int ReturnData = LineSetup();
@@ -33,6 +36,7 @@ int main()
     Nano33IoTSetup();
     gpio_put(Bupin,0);
     while (true) {
+        //UseBallSensor();
         if(SerialWatch == 't'){
             printf("経過時間%fミリ秒\n",(time_us_32()-PreTime)/1000.0);
             PreTime = time_us_32();
@@ -44,15 +48,8 @@ int main()
                 gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);
 
                 //DribblerMotorState(0,DefaultDribblerSpeed);
-                BLDCState(2000);
-                sleep_ms(1000);
-                BLDCState(1000);
-                sleep_ms(2000);
-                for (int pulse = 1000;pulse <= 2000;pulse += 50){
-                    BLDCState(pulse);
-                    printf("%d\n",pulse);
-                    sleep_ms(300);
-                }
+                
+                BLDCState(1750);
             }else if(gpio_get(TSpin2) == 1){
                 mode = 2;
                 //割り込み処理を行う
