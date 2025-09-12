@@ -256,18 +256,19 @@ void NewLineMove(){
         MainPreTime = time_us_32() / 1000000.0;
         LineAngle = GetLineAngle();
         //-999.9の時は中央なので何もしない
-        if(LineAngle == 999.9 || (FirstAngle > 0 && (FirstAngle - 4.28 < LineAngle && LineAngle < FirstAngle - 2.0)) || (FirstAngle == 0 && (LineAngle < -2.0 || 2.0 < LineAngle)) || (FirstAngle < 0 && (FirstAngle + 2.0 < LineAngle && LineAngle < FirstAngle + 4.28))){
+        if(LineAngle == 999.9 || (FirstAngle > 0 && (FirstAngle - 4.71 < LineAngle && LineAngle < FirstAngle - 1.57)) || (FirstAngle == 0 && (LineAngle < -1.57 || 1.57 < LineAngle)) || (FirstAngle < 0 && (FirstAngle + 1.57 < LineAngle && LineAngle < FirstAngle + 4.71))){
           //円形が反応しないか、最初の向きと逆の時
           MotorDuty[0] = LineDuty[0];
           MotorDuty[1] = LineDuty[1];
           MotorDuty[2] = LineDuty[2];
           MotorDuty[3] = LineDuty[3];
         }else if(LineAngle != -999.9){
-          MotorDuty[0] = (int)(LineSpeed * (cos(LineAngle) + sin(LineAngle)) / 1.2);
-          MotorDuty[1] = (int)(LineSpeed * (-cos(LineAngle) + sin(LineAngle)) / 1.2);
-          MotorDuty[2] = (int)(LineSpeed * (cos(LineAngle) + sin(LineAngle)) / 1.2);
-          MotorDuty[3] = (int)(LineSpeed * (-cos(LineAngle) + sin(LineAngle)) / 1.2);
+          MotorDuty[0] = (int)(LineSpeed * (-cos(LineAngle) - sin(LineAngle)) / 1.2);
+          MotorDuty[1] = (int)(LineSpeed * (cos(LineAngle) - sin(LineAngle)) / 1.2);
+          MotorDuty[2] = (int)(LineSpeed * (-cos(LineAngle) - sin(LineAngle)) / 1.2);
+          MotorDuty[3] = (int)(LineSpeed * (cos(LineAngle) - sin(LineAngle)) / 1.2);
         }
+        Turn();
         UseMotorDuty();
       }
     }
@@ -444,9 +445,10 @@ void ChaseBall(float angle,bool isMakao){
   if(isMakao == true)SinSpeed2 = SinSpeed * sin(BallPreTime / 1000000.0);
   else SinSpeed2 = 0;
   //壁際に近い時は減速する
-  if((0 < LeftWall && LeftWall < 100) || (0 < RightWall && RightWall < 60)) Gensoku = 0.88;
-  else Gensoku = 1.0;
-
+  //if((0 < LeftWall && LeftWall < 100) || (0 < RightWall && RightWall < 60)) Gensoku = 0.88;
+  //else Gensoku = 1.0;
+  Gensoku = 1.0;
+  
   MotorDuty[0] = (int)(DefaultSpeed * cos((angle * -1 + 45) * 3.1415 / 180) * Gensoku + AngleSpeed + SinSpeed2);
   MotorDuty[1] = (int)(DefaultSpeed * sin((angle * -1 + 45) * 3.1415 / 180) * Gensoku + AngleSpeed - SinSpeed2);
   MotorDuty[2] = (int)(DefaultSpeed * cos((angle * -1 + 45) * 3.1415 / 180) * Gensoku - AngleSpeed + SinSpeed2);
@@ -508,16 +510,16 @@ void NonDribbler(float angle,bool isClockWise){
 
 void Makao(bool isClockWise,int TargetAngle){
   Brake();
-  sleep_ms(1300);
+  sleep_ms(2000);
   if(isClockWise == true){
     while (TargetAngle - 150 < AngleX && AngleX <= TargetAngle) {
       UseLineSensor();
       UseGyroSensor();
       //if((int)((AngleX - (TargetAngle - 140)) * 1.4) > 255){
-        MainMotorState(1, 1, 200);
-        MainMotorState(2, 1, 200);
-        MainMotorState(3, 1, 220);
-        MainMotorState(4, 1, 220);
+        MainMotorState(1, 1, 160);
+        MainMotorState(2, 1, 160);
+        MainMotorState(3, 1, 200);
+        MainMotorState(4, 1, 200);
       /*}else if((int)((AngleX - (TargetAngle - 140))* 1.4) > MakaoLeastSpeed){
         MainMotorState(1, 0, (int)((AngleX - (TargetAngle - 140)) * 1.4));
         MainMotorState(2, 0, (int)((AngleX - (TargetAngle - 140)) * 1.4));
@@ -563,10 +565,10 @@ void Makao(bool isClockWise,int TargetAngle){
       UseLineSensor();
       UseGyroSensor();
       //if((int)((TargetAngle + 140 - AngleX) * 1.4) > 255){
-        MainMotorState(1, 1, 220);
-        MainMotorState(2, 1, 220);
-        MainMotorState(3, 1, 200);
-        MainMotorState(4, 1, 200);
+        MainMotorState(1, 1, 200);
+        MainMotorState(2, 1, 200);
+        MainMotorState(3, 1, 160);
+        MainMotorState(4, 1, 160);
       /*}else if((int)((TargetAngle + 140 - AngleX) * 1.4) > MakaoLeastSpeed){
         MainMotorState(1, 1, (int)((TargetAngle + 140 - AngleX) * 1.4));
         MainMotorState(2, 1, (int)((TargetAngle + 140 - AngleX) * 1.4));
@@ -609,7 +611,7 @@ void Makao(bool isClockWise,int TargetAngle){
       }
     }
   }
-  BLDCState(1500);
+  BLDCState(1750);
   //DribblerMotorState(0,DefaultDribblerSpeed);
   if(mode == 9 || mode == 10){
     mode -= 6;

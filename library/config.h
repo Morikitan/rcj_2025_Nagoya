@@ -47,7 +47,7 @@ extern int makao;
 #define LeastTurnSpeed 100
 #define LeastSpeed 120
 #define TurnSpeed 120
-#define DefaultSpeed 220
+#define DefaultSpeed 215
 #define DefaultSpeed1 170
 #define DefaultSpeed2 170
 #define DefaultSpeed3 170

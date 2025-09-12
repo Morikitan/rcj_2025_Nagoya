@@ -104,7 +104,7 @@ int main()
             gpio_set_irq_enabled_with_callback(TSpin6,GPIO_IRQ_EDGE_RISE,true,&LineMove);    
         }else{
             UseLineSensor();
-            DribblerMotorState(0,255);
+            //DribblerMotorState(0,255);
         }
     }
 }
