@@ -29,7 +29,7 @@ int MakaoLeastSpeed = 120; // 過去は80
 void Attack(){
     UseBLE();
     //ライン上に乗っているかを判定する
-    NewLineMove();
+    LineMove();
     UseGyroSensor();
     UseBallSensor();
     UseCamera();

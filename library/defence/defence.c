@@ -9,8 +9,8 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "hardware/gpio.h"
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 float SpeedUp = 1;
 float DefenceTime = 0;
@@ -601,7 +601,7 @@ float GetLineAngle(){
     VectorY /= (float)VectorNumber;
   }
   VectorAbsoluteValue = sqrt(VectorX * VectorX + VectorY * VectorY);
-  if(SerialWatch == 'v'){
+  if(SerialWatch == "vec"){
     printf(" 向き(真右が0度) : ");
     if(VectorX == 999 && VectorY == 999){
       printf("ラインの上にいない!!\n");
@@ -617,7 +617,7 @@ float GetLineAngle(){
   }else if(VectorX == 0 && VectorY == 0){
     return 999.9;
   }else{
-    return atan2(VectorY,VectorX);
+    return atan2(VectorX,VectorY);
   }
 }
 

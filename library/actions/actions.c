@@ -29,9 +29,10 @@ double OpponentGoalAngle;
 float OpponentGoalDistance;
 int LeftWall;
 int RightWall;
-int MotorDuty[4];
+int TargetFrequency[4];
 int makao;
 float PMotorDuty[4] = {0,0,0,0};
+int MotorDuty[4];
 
 #define Kp 0.3
 void VariableSetup(){
@@ -45,7 +46,7 @@ void VariableSetup(){
   c カメラの値
   v ベクトル
   *******************/
-  SerialWatch = 'b';
+  SerialWatch = 'l';
 
   //必ず変更しましょう。1で黄色ゴールが自分側(相手にシュートされる側)。0で逆
   isYellowMyGoal = 1;
